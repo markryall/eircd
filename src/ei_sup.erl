@@ -23,6 +23,6 @@ init([LSock]) ->
     Shutdown = brutal_kill,
     Type = worker,
 
-    AChild = {ei_server2, {ei_server2, start_link, [LSock]},
-	      Restart, Shutdown, Type, [ei_server2]},
+    AChild = {ei_server, {ei_server, start_link, [LSock]},
+	      Restart, Shutdown, Type, [ei_server]},
     {ok, {SupFlags, [AChild]}}.
