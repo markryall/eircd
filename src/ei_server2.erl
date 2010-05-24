@@ -1,4 +1,4 @@
--module(ei_server).
+-module(ei_server2).
 
 -behaviour(gen_server).
 
