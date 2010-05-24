@@ -16,4 +16,35 @@ You will then be astounded to discover that the server will have dumped what you
 
 To the screen I tell you!
 
-See it to believe it.
+See it to believe it:
+
+terminal 1
+
+  prompt ☽ erl
+  1> application:start(eircd).
+  ei_sup off we go ...
+  ei_server: starting up on 7000
+  ei_server: Got a socket listener
+  Waiting for connection
+
+terminal 2
+
+  prompt ☽ telnet localhost 7000
+  Trying ::1...
+  telnet: connect to address ::1: Connection refused
+  Trying fe80::1...
+  telnet: connect to address fe80::1: Connection refused
+  Trying 127.0.0.1...
+  Connected to localhost.
+  Escape character is '^]'.
+  some stuff
+  ^]
+  telnet> close
+  Connection closed.
+
+terminal 1
+
+  ok
+  2> Waiting for connection
+  Received ["some stuff\r\n"]
+  application:stop(eircd).
