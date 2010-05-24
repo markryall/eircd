@@ -4,7 +4,6 @@
 
 -export([
 	 start_link/1,
-	 start_link/0,
 	 get_count/0
 	]).
 -export([
@@ -16,23 +15,12 @@
 	 code_change/3
 	]).
 
--define(DEFAULT_PORT, 7000).
 -define(SERVER, ?MODULE).
 
-%% needs to represent the server state
--record(state, {port, lsock}).
+-record(state, {lsock}).
 
-start_link() ->
-    start_link(?DEFAULT_PORT).
-
-start_link(Port) ->
-    io:format("ei_server: starting up on ~p~n", [Port]),
-
-    %% 1st arg, {local, ?SERVER} - register local process as ?SERVER
-    %% 2nd arg, ?MODULE - module that contains the init function
-    %% 3rd arg, [Port] - parameters to pass to init
-    %% 4th arg, [] - extra flags that can be passed to start_link
-    gen_server:start_link({local, ?SERVER}, ?MODULE, [Port], []).
+start_link(LSock) ->
+    gen_server:start_link(?MODULE, [LSock], []).
 
 stop() ->
     gen_server:cast(?SERVER, stop).
@@ -43,9 +31,8 @@ get_count() ->
 terminate(_Reason, State) ->
     {noreply, State}.
 
-init([Port]) ->
-    {ok, LSock} = gen_tcp:listen(Port, [{active, true}]),
-    {ok, #state{port = Port, lsock = LSock}, 0}.
+init([LSock]) ->
+    {ok, #state{lsock = LSock}, 0}.
 
 handle_info({tcp, Socket, RawData}, State) ->
     io:format("handle_info: ~p~n", [RawData]),
@@ -53,16 +40,14 @@ handle_info({tcp, Socket, RawData}, State) ->
 handle_info(timeout, #state{lsock = LSock} = State) ->
     io:format("handle_info: timeout occurred"),
     {ok, _Sock} = gen_tcp:accept(LSock),
+    ei_sup:start_child(),
     {noreply, State}.
 
-handle_cast(_Msg, State) ->
-    io:format("handle_cast: ~p~n", [_Msg]),
-    {noreply, State}.
+handle_cast(stop, State) ->
+    {stop, normal, State}.
 
-handle_call(_Request, _From, State) ->
-    io:format("handle_call: ~p ~p~n", [_Request, _From]), 
-    Reply = ok,
-    {reply, Reply, State}.
+handle_call(Msg, _From, State) ->
+    {reply, {ok, Msg}, State}.
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
