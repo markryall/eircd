@@ -5,7 +5,8 @@
 -export([
 	 start_link/1,
 	 start_link/0,
-	 get_count/0
+	 get_count/0,
+         wait_connect/1
 	]).
 -export([
 	 terminate/2,
@@ -43,10 +44,36 @@ get_count() ->
 terminate(_Reason, State) ->
     {noreply, State}.
 
-%% need to do something with the LSock variable rather than throw it away
 init([Port]) ->
-    {ok, LSock} = gen_tcp:listen(Port, [{active, true}]),
+    case gen_tcp:listen(Port,[{active, false}]) of
+	{ok, LSock} ->
+	    io:format("~p: Got a socket listener~n", [?MODULE]),
+            spawn(?MODULE, wait_connect, [LSock]);
+	Other ->
+	    io:format("Can't listen to socket ~p~n", [Other])
+    end,
     {ok, #state{}}.
+
+wait_connect(LS) ->
+    io:format("Waiting for connection~n"),
+    case gen_tcp:accept(LS) of
+	{ok, Socket} ->
+	    spawn(?MODULE, wait_connect, [LS]),
+            get_request(Socket, []);
+	{error, Reason} ->
+	    io:format("Can't accept socket ~p~n", [Reason])
+    end.
+
+get_request(Socket, BinaryList) ->
+    case gen_tcp:recv(Socket, 0, 5000) of
+	{ok, Binary} ->
+	    get_request(Socket, [Binary|BinaryList]);
+	{error, closed} ->
+	    handle(lists:reverse(BinaryList))
+    end.
+
+handle(Binary) ->
+  io:format("Received ~p~n", [Binary]).
 
 %% other requests, eg. exit message
 handle_info(_Info, State) ->
