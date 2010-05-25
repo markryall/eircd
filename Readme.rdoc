@@ -2,6 +2,8 @@
 
 This is an ircd implemented in erlang entirely for the purpose of learning erlang.
 
+== Basic usage
+
   git clone git@github.com:markryall/eircd.git
   cd eircd/ebin
   erlc ../src/*.erl
@@ -10,41 +12,17 @@ This is an ircd implemented in erlang entirely for the purpose of learning erlan
   # have an amazing irc experience*
   application:stop(eircd).
 
-Note that 'amazing irc experience' at this stage translates to establishing a telnet connection, typing some stuff then disconnecting the connection.
+== Starting up (requires ruby, rake and sinan)
 
-You will then be astounded to discover that the server will have dumped what you typed to the screen.
+Open a separate console and run:
 
-To the screen I tell you!
+   cd _build/development/apps/eircd-0.1.0/ebin
+   cd screen -S eircd
 
-See it to believe it:
+In your own console
 
-terminal 1
+  rake start
 
-  prompt ☽ erl
-  1> application:start(eircd).
-  ei_sup off we go ...
-  ei_server: starting up on 7000
-  ei_server: Got a socket listener
-  Waiting for connection
+To shutdown the server
 
-terminal 2
-
-  prompt ☽ telnet localhost 7000
-  Trying ::1...
-  telnet: connect to address ::1: Connection refused
-  Trying fe80::1...
-  telnet: connect to address fe80::1: Connection refused
-  Trying 127.0.0.1...
-  Connected to localhost.
-  Escape character is '^]'.
-  some stuff
-  ^]
-  telnet> close
-  Connection closed.
-
-terminal 1
-
-  ok
-  2> Waiting for connection
-  Received ["some stuff\r\n"]
-  application:stop(eircd).
+  rake stop
