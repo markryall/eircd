@@ -6,7 +6,7 @@
 
 -export([start/2, stop/1]).
 
--define(PORT, 7000).
+-define(PORT, 6667).
 
 start(_Type, _StartArgs) ->
     {ok, LSock} = gen_tcp:listen(?PORT, [{active, true}]),

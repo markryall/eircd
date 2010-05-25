@@ -37,12 +37,17 @@ terminate(_Reason, State) ->
 init([LSock]) ->
     {ok, #state{lsock = LSock}, 0}.
 
-handle_info({tcp, _Socket, RawData}, State) ->
-    io:format("handle_info: ~p~n", [RawData]),
+handle_info({tcp, Socket, RawData}, State) ->
+    io:format("~p: received data ~p on socket ~p~n", [?MODULE, RawData, Socket]),
+	gen_tcp:send(Socket, ":verne.freenode.net 001 markryall :Welcome to the freenode Internet Relay Chat Network markryall\r\n"),
     {noreply, State};
+handle_info({tcp_closed, Port}, State) ->
+	io:format("~p: socket on port ~p closed~n", [?MODULE, Port]),
+	{noreply, State};
 handle_info(timeout, #state{lsock = LSock} = State) ->
-    io:format("handle_info: timeout occurred"),
-    {ok, _Sock} = gen_tcp:accept(LSock),
+    io:format("~p: waiting for connection on socket ~p~n", [?MODULE, LSock]),
+    {ok, Sock} = gen_tcp:accept(LSock),
+    io:format("~p: received new connection on socket ~p~n", [?MODULE, Sock]),
     ei_sup:start_child(),
     {noreply, State}.
 
