@@ -6,7 +6,7 @@
 
 -define(PORT, 7000).
 
-start(Type, StartArgs) ->
+start(_Type, _StartArgs) ->
     {ok, LSock} = gen_tcp:listen(?PORT, [{active, true}]),
     case ei_sup:start_link(LSock) of
 	{ok, Pid} ->
@@ -16,5 +16,5 @@ start(Type, StartArgs) ->
 	    Error
     end.
 
-stop(State) ->
+stop(_State) ->
     ok.

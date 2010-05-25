@@ -4,7 +4,8 @@
 
 -export([
 	 start_link/1,
-	 get_count/0
+	 get_count/0,
+	 stop/0
 	]).
 -export([
 	 terminate/2,
@@ -34,7 +35,7 @@ terminate(_Reason, State) ->
 init([LSock]) ->
     {ok, #state{lsock = LSock}, 0}.
 
-handle_info({tcp, Socket, RawData}, State) ->
+handle_info({tcp, _Socket, RawData}, State) ->
     io:format("handle_info: ~p~n", [RawData]),
     {noreply, State};
 handle_info(timeout, #state{lsock = LSock} = State) ->
