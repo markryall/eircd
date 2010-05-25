@@ -1,5 +1,7 @@
 -module(ei_server).
 
+-include_lib("eunit/include/eunit.hrl").
+
 -behaviour(gen_server).
 
 -export([
@@ -52,3 +54,6 @@ handle_call(Msg, _From, State) ->
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
+
+terminate_test_() -> 
+	[?_assert(ei_server:terminate(reason, state) =:= {noreply, state})].

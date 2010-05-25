@@ -2,7 +2,5 @@
 
 -include_lib("eunit/include/eunit.hrl").
 
-reverse_test_() -> 
-	[?_assert(lists:reverse([1,2,3]) =:= [3,2,1])].
-
-length_test()  ->  3 = length("cat").
+ei_server_test_() -> 
+	[?_assert(ei_server:terminate(reason, state) =:= {noreply, state})].
