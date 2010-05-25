@@ -60,5 +60,5 @@ handle_call(Msg, _From, State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
-terminate_test_() -> 
-	[?_assert(ei_server:terminate(reason, state) =:= {noreply, state})].
+terminate_test_() ->
+    [?_assert(ei_server:terminate(reason, state) =:= {noreply, state})].
