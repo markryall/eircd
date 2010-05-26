@@ -6,4 +6,5 @@ Feature: User registers a nick
 Scenario: User connects for the first time
 	Given I am connected to eircd
 	When enter "NICK user2"
-	Then I should receive content ":verne.freenode.net 001 user2 :Welcome to the freenode Internet Relay Chat Network user2"
+	And enter "USER user2 hostname servername realname"
+	Then I should receive content ":eircd 001 user2 :Welcome to the eircd Internet Relay Chat Network user2"

@@ -39,9 +39,7 @@ init([LSock]) ->
 
 handle_info({tcp, Socket, RawData}, State) ->
     io:format("~p: received data ~p on socket ~p~n", [?MODULE, RawData, Socket]),
-    handle_commands(string:tokens(RawData, "\r\n")),
-    {atomic,[{user,Nick,_Pid}]} = ei_mnesia:select(nick, self()),
-    gen_tcp:send(Socket, ":verne.freenode.net 001 " ++ Nick ++ " :Welcome to the freenode Internet Relay Chat Network " ++ Nick ++ "\r\n"),
+    handle_commands(string:tokens(RawData, "\r\n"), Socket),
     {noreply, State};
 handle_info({tcp_closed, Port}, State) ->
 	io:format("~p: socket on port ~p closed~n", [?MODULE, Port]),
@@ -53,17 +51,26 @@ handle_info(timeout, #state{lsock = LSock} = State) ->
     ei_sup:start_child(),
     {noreply, State}.
 
-handle_commands([]) ->
+handle_commands([], Socket) ->
     io:format("~p: finished processing commands~n", [?MODULE]);
-handle_commands([Command|Commands]) ->
+handle_commands([Command|Commands], Socket) ->
     io:format("~p: processing command ~p~n", [?MODULE, Command]),
     case string:tokens(Command, " ") of
-       ["NICK", Nick] ->
-           io:format("~p: Nick=~p~n", [?MODULE, Nick]),
-           ei_mnesia:insert(nick, Nick, self());
-       _ -> io:format("~p: Ignored", [?MODULE])
+        ["USER", Username, Hostname, Servername, Realname] ->
+            {atomic,[{nick,Nick,_Pid}]} = ei_mnesia:select(nick, self()),
+            ei_mnesia:insert(userinfo, Nick, Username, Hostname, Servername, Realname),
+            gen_tcp:send(Socket, ":eircd 001 " ++ Nick ++ " :Welcome to the eircd Internet Relay Chat Network " ++ Nick ++ "\r\n");
+        ["NICK", Nick] ->
+            io:format("~p: processing nick command with nick=~p~n", [?MODULE, Nick]),
+            ei_mnesia:insert(nick, Nick, self());
+        ["JOIN", Channel] ->
+            io:format("~p: processing join command with channel=~p~n", [?MODULE, Channel]),
+            {atomic,[{nick,Nick,_Pid}]} = ei_mnesia:select(nick, self()),
+            gen_tcp:send(Socket, ":eircd MODE " ++ Channel ++ " +ns\r\n"),
+            gen_tcp:send(Socket, ":eircd 366 " ++ Nick ++ " " ++ Channel ++ " :End of /NAMES list.\r\n");
+       _ -> io:format("~p: ignored command ~p~n", [?MODULE, Command])
     end,
-    handle_commands(Commands).
+    handle_commands(Commands, Socket).
 
 handle_cast(stop, State) ->
     {stop, normal, State}.
