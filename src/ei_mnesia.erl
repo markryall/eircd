@@ -7,10 +7,15 @@
 -record(user, {nick, pid}).
 
 init() ->
+    delete_schema(),
+
     mnesia:create_schema([node()]),
     mnesia:start(),
     mnesia:create_table(user,
 			 [{attributes, record_info(fields, user)}]).
+delete_schema() ->
+    mnesia:stop(),
+    mnesia:delete_schema([node()]).
 
 insert(Nick, Pid) ->
     Fun = 

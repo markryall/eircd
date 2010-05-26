@@ -9,6 +9,8 @@
 -define(PORT, 6667).
 
 start(_Type, _StartArgs) ->
+    ei_mnesia:init(),
+
     {ok, LSock} = gen_tcp:listen(?PORT, [{active, true}]),
     case ei_sup:start_link(LSock) of
 	{ok, Pid} ->
