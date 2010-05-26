@@ -56,9 +56,10 @@ handle_commands([], Socket) ->
 handle_commands([Command|Commands], Socket) ->
     io:format("~p: processing command ~p~n", [?MODULE, Command]),
     case string:tokens(Command, " ") of
-        ["USER", Username, Hostname, Servername, Realname] ->
+        ["USER", Username, Hostname, Servername|Realname] ->
             {atomic,[{nick,Nick,_Pid}]} = ei_mnesia:select(nick, self()),
-            ei_mnesia:insert(userinfo, Nick, Username, Hostname, Servername, Realname),
+            % TODO: replace second Username below with Realname
+            ei_mnesia:insert(userinfo, Nick, Username, Hostname, Servername, Username),
             gen_tcp:send(Socket, ":eircd 001 " ++ Nick ++ " :Welcome to the eircd Internet Relay Chat Network " ++ Nick ++ "\r\n");
         ["NICK", Nick] ->
             io:format("~p: processing nick command with nick=~p~n", [?MODULE, Nick]),
