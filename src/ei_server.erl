@@ -39,7 +39,9 @@ init([LSock]) ->
 
 handle_info({tcp, Socket, RawData}, State) ->
     io:format("~p: received data ~p on socket ~p~n", [?MODULE, RawData, Socket]),
-	gen_tcp:send(Socket, ":verne.freenode.net 001 markryall :Welcome to the freenode Internet Relay Chat Network markryall\r\n"),
+    handle_commands(string:tokens(RawData, "\r\n")),
+    {atomic,[Nick]} = ei_mnesia:select(self()),
+    gen_tcp:send(Socket, ":verne.freenode.net 001 " ++ Nick ++ " :Welcome to the freenode Internet Relay Chat Network " ++ Nick ++ "\r\n"),
     {noreply, State};
 handle_info({tcp_closed, Port}, State) ->
 	io:format("~p: socket on port ~p closed~n", [?MODULE, Port]),
@@ -50,6 +52,18 @@ handle_info(timeout, #state{lsock = LSock} = State) ->
     io:format("~p: received new connection on socket ~p~n", [?MODULE, Sock]),
     ei_sup:start_child(),
     {noreply, State}.
+
+handle_commands([]) ->
+    io:format("~p: finished processing commands~n", [?MODULE]);
+handle_commands([Command|Commands]) ->
+    io:format("~p: processing command ~p~n", [?MODULE, Command]),
+    case string:tokens(Command, " ") of
+       ["NICK", Nick] ->
+           io:format("~p: Nick=~p~n", [?MODULE, Nick]),
+           ei_mnesia:insert(Nick, self());
+       _ -> io:format("~p: Ignored", [?MODULE])
+    end,
+    handle_commands(Commands).
 
 handle_cast(stop, State) ->
     {stop, normal, State}.
@@ -62,3 +76,5 @@ code_change(_OldVsn, State, _Extra) ->
 
 terminate_test_() ->
     [?_assert(ei_server:terminate(reason, state) =:= {noreply, state})].
+
+
