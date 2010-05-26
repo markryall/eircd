@@ -40,7 +40,7 @@ init([LSock]) ->
 handle_info({tcp, Socket, RawData}, State) ->
     io:format("~p: received data ~p on socket ~p~n", [?MODULE, RawData, Socket]),
     handle_commands(string:tokens(RawData, "\r\n")),
-    {atomic,[Nick]} = ei_mnesia:select(nick, self()),
+    {atomic,[{user,Nick,_Pid}]} = ei_mnesia:select(nick, self()),
     gen_tcp:send(Socket, ":verne.freenode.net 001 " ++ Nick ++ " :Welcome to the freenode Internet Relay Chat Network " ++ Nick ++ "\r\n"),
     {noreply, State};
 handle_info({tcp_closed, Port}, State) ->
