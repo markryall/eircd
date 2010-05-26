@@ -10,4 +10,5 @@ Scenario: User connects for the first time
 	And enter "JOIN #channel1"
 	Then I should receive content ":eircd 001 user2 :Welcome to the eircd Internet Relay Chat Network user2"
 	And I should receive content ":eircd MODE #channel1 +ns"
+	And I should receive content ":eircd 353 user2 @ #channel1 :@user2"
 	And I should receive content ":eircd 366 user2 #channel1 :End of /NAMES list."

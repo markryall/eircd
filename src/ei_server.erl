@@ -67,6 +67,7 @@ handle_commands([Command|Commands], Socket) ->
             io:format("~p: processing join command with channel=~p~n", [?MODULE, Channel]),
             {atomic,[{nick,Nick,_Pid}]} = ei_mnesia:select(nick, self()),
             gen_tcp:send(Socket, ":eircd MODE " ++ Channel ++ " +ns\r\n"),
+            gen_tcp:send(Socket, ":eircd 353 " ++ Nick ++ " @ " ++ Channel ++ " :@" ++ Nick ++ "\r\n"),
             gen_tcp:send(Socket, ":eircd 366 " ++ Nick ++ " " ++ Channel ++ " :End of /NAMES list.\r\n");
        _ -> io:format("~p: ignored command ~p~n", [?MODULE, Command])
     end,
