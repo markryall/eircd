@@ -51,26 +51,18 @@ handle_info(timeout, #state{lsock = LSock} = State) ->
     ei_sup:start_child(),
     {noreply, State}.
 
-handle_commands([], Socket) ->
+handle_commands([], _Socket) ->
     io:format("~p: finished processing commands~n", [?MODULE]);
 handle_commands([Command|Commands], Socket) ->
     io:format("~p: processing command ~p~n", [?MODULE, Command]),
     case string:tokens(Command, " ") of
-        ["USER", Username, Hostname, Servername|Realname] ->
-            {atomic,[{nick,Nick,_Pid}]} = ei_mnesia:select(nick, self()),
-            % TODO: replace second Username below with Realname
-            ei_mnesia:insert(userinfo, Nick, Username, Hostname, Servername, Username),
-            gen_tcp:send(Socket, ":eircd 001 " ++ Nick ++ " :Welcome to the eircd Internet Relay Chat Network " ++ Nick ++ "\r\n");
-        ["NICK", Nick] ->
-            io:format("~p: processing nick command with nick=~p~n", [?MODULE, Nick]),
-            ei_mnesia:insert(nick, Nick, self());
-        ["JOIN", Channel] ->
-            io:format("~p: processing join command with channel=~p~n", [?MODULE, Channel]),
-            {atomic,[{nick,Nick,_Pid}]} = ei_mnesia:select(nick, self()),
-            gen_tcp:send(Socket, ":eircd MODE " ++ Channel ++ " +ns\r\n"),
-            gen_tcp:send(Socket, ":eircd 353 " ++ Nick ++ " @ " ++ Channel ++ " :@" ++ Nick ++ "\r\n"),
-            gen_tcp:send(Socket, ":eircd 366 " ++ Nick ++ " " ++ Channel ++ " :End of /NAMES list.\r\n");
-       _ -> io:format("~p: ignored command ~p~n", [?MODULE, Command])
+        [Token|Arguments] ->
+            try
+                apply(ei_commands, list_to_atom(string:to_lower(Token)), [Socket, Arguments])
+            catch
+                error:undef -> io:format("~p: failed to apply function ~p~n", [?MODULE, Token])
+            end;
+        _ -> io:format("~p: ignored command ~p~n", [?MODULE, Command])
     end,
     handle_commands(Commands, Socket).
 
