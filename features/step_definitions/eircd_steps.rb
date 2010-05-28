@@ -35,6 +35,10 @@ When /^enter "([^']+)"$/ do |content|
   @client.write content
 end
 
+Then /^I should receive "([^"]*)"$/ do |text|
+  @client.read.chomp.should == text
+end
+
 Then /^I should receive the following content:$/ do |text|
   @client.read.chomp.split("\r\n").should == text.split("\n")
 end

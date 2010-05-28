@@ -17,7 +17,7 @@ nick(_Socket, [Nick]) ->
     ei_mnesia:insert(nick, Nick, self()),
     ei_event:nick_registration(Nick).
 
-ping(Socket, _) ->
+ping(Socket, Arguments) ->
     io:format("~p: processing ping command~n", [?MODULE]),
     gen_tcp:send(Socket, "PONG\r\n").
 
