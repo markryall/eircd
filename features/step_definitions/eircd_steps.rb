@@ -19,9 +19,8 @@ class Client
   end
 
   def read
-    raise TimeoutError, "timed out while waiting for more data" unless IO::select([@sock], nil, nil, 1)
     content = @sock.readpartial(1024)
-    while IO::select([@sock], nil, nil, 0)
+    while IO::select([@sock], nil, nil, 1)
       content << @sock.readpartial(1024)
     end
     content
@@ -36,8 +35,8 @@ When /^enter "([^']+)"$/ do |content|
   @client.write content
 end
 
-Then /^I should receive the following content:$/ do |table|
-  @client.read.split("\r\n").should == table.raw.first
+Then /^I should receive the following content:$/ do |text|
+  @client.read.chomp.split("\r\n").should == text.split("\n")
 end
 
 After do
