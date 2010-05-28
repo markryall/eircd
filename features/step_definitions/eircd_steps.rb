@@ -31,6 +31,15 @@ Given /^I am connected to eircd$/ do
   @client = Client.new('localhost', 6667).connect
 end
 
+Given /^I am registered as "([^"]*)"$/ do |nickname|
+  steps %{
+    Given I am connected to eircd
+    And enter "NICK #{nickname}"
+    And enter "USER #{nickname} hostname servername realname"
+  }
+  @client.read
+end
+
 When /^enter "([^']+)"$/ do |content|
   @client.write content
 end

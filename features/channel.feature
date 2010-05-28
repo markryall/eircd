@@ -4,13 +4,10 @@ Feature: User joins a channel
 	So that I can talk to like minded people
 
 Scenario: User connects for the first time
-	Given I am connected to eircd
-	When enter "NICK user2"
-	And enter "USER user2 hostname servername realname"
-	And enter "JOIN #channel1"
+	Given I am registered as "user2"
+	When enter "JOIN #channel1"
 	Then I should receive the following content:
 	 """
-	 :eircd 001 user2 :Welcome to the eircd Internet Relay Chat Network user2
 	 :eircd MODE #channel1 +ns
 	 :eircd 353 user2 @ #channel1 :@user2
 	 :eircd 366 user2 #channel1 :End of /NAMES list.
