@@ -5,5 +5,5 @@ Feature: User pings server
 
 Scenario: User pings server
 	Given I am connected to eircd
-	When enter "PING"
+	When I enter "PING"
 	Then I should receive "PONG"

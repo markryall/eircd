@@ -19,10 +19,8 @@ class Client
   end
 
   def read
-    content = @sock.readpartial(1024)
-    while IO::select([@sock], nil, nil, 1)
-      content << @sock.readpartial(1024)
-    end
+    content = ""
+    content << @sock.readpartial(1024) while IO::select([@sock], nil, nil, 1)
     content
   end
 end
@@ -34,18 +32,18 @@ end
 Given /^I am registered as "([^"]*)"$/ do |nickname|
   steps %{
     Given I am connected to eircd
-    And enter "NICK #{nickname}"
-    And enter "USER #{nickname} hostname servername realname"
+    And I enter "NICK #{nickname}"
+    And I enter "USER #{nickname} hostname servername realname"
   }
   @client.read
 end
 
-When /^enter "([^']+)"$/ do |content|
+When /^I enter "([^']+)"$/ do |content|
   @client.write content
 end
 
 Then /^I should receive "([^"]*)"$/ do |text|
-  @client.read.chomp.should == text
+  @client.read.chomp.should =~ /#{text}/
 end
 
 Then /^I should receive the following content:$/ do |text|

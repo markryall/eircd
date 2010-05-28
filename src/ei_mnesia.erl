@@ -36,11 +36,12 @@ insert(userinfo, Nick, Username, Hostname, Servername, Realname) ->
 select(nick, Pid) ->
     Fun = 
 	fun() ->
-		Query = qlc:q([U || U <- mnesia:table(nick),
+		Query = qlc:q([U#nick.nick || U <- mnesia:table(nick),
 				    U#nick.pid == Pid]),
 		qlc:e(Query)
 	end,
-    mnesia:transaction(Fun);
+    {atomic, [Nick]} = mnesia:transaction(Fun),
+    Nick;
 select(userinfo, Nick) ->
     Fun =
 	fun() ->
