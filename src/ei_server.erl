@@ -60,7 +60,8 @@ handle_commands([Command|Commands]) ->
     case string:tokens(Command, " ") of
        ["NICK", Nick] ->
            io:format("~p: Nick=~p~n", [?MODULE, Nick]),
-           ei_mnesia:insert(nick, Nick, self());
+           ei_mnesia:insert(nick, Nick, self()),
+	    ei_event:nick_registration(Nick);
        _ -> io:format("~p: Ignored", [?MODULE])
     end,
     handle_commands(Commands).

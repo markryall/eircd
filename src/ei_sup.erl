@@ -21,10 +21,15 @@ init([LSock]) ->
     MaxSecondsBetweenRestarts = 1,
 
     SupFlags = {RestartStrategy, MaxRestarts, MaxSecondsBetweenRestarts},
+
     Restart = temporary,
     Shutdown = brutal_kill,
     Type = worker,
 
-    AChild = {ei_server, {ei_server, start_link, [LSock]},
+    Server = {ei_server, {ei_server, start_link, [LSock]},
 	      Restart, Shutdown, Type, [ei_server]},
-    {ok, {SupFlags, [AChild]}}.
+
+    Event = {ei_event, {ei_event, start_link, []},
+	     Restart, Shutdown, Type, [ei_event]},
+
+    {ok, {SupFlags, [Server, Event]}}.

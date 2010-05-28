@@ -2,4 +2,5 @@
 *.beam
 _build
 #*#
+Mnesia.*@*
 
