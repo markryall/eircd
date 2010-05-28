@@ -3,7 +3,9 @@
 -behaviour(gen_event).
 
 -export([
-	 init/1
+	 init/1,
+	 add_handler/0,
+	 delete_handler/0
 	 ]).
 -export([
 	 handle_event/2,
@@ -13,8 +15,16 @@
 	 terminate/2
 	 ]).
 
+-record(state, {}).
+
 init([]) ->
+    {ok, #state{}}.
+
+add_handler() ->
     ei_event:add_handler(?MODULE, []).
+
+delete_handler() ->
+    ei_event:delete_handler(?MODULE, []).
 
 terminate(_Reason, State) ->
     {noreply, State}.
@@ -35,4 +45,7 @@ handle_event({create, {Key, Value}}, State) ->
     {ok, State};
 handle_event({lookup, Key}, State) ->
     io:format("handle_event: lookup(~w)", [Key]),
+    {ok, State};
+handle_event({user_nick_registration, Nick}, State) ->
+    io:format("nick registeration: " ++ Nick),
     {ok, State}.

@@ -14,10 +14,11 @@ start(_Type, _StartArgs) ->
     {ok, LSock} = gen_tcp:listen(?PORT, [{active, true}]),
     case ei_sup:start_link(LSock) of
 	{ok, Pid} ->
-	    ei_sup:start_child(),
+	    ei_privmsg:add_handler(),
+	    ei_server_sup:start_child(),
 	    {ok, Pid};
-	Error ->
-	    Error
+	Other ->
+	    {error, Other}
     end.
 
 stop(_State) ->

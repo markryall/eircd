@@ -6,7 +6,6 @@
 
 -export([
 	 start_link/1,
-	 get_count/0,
 	 stop/0
 	]).
 -export([
@@ -23,18 +22,17 @@
 -record(state, {lsock}).
 
 start_link(LSock) ->
+    io:format("ei_server: start_link"),
     gen_server:start_link(?MODULE, [LSock], []).
 
 stop() ->
     gen_server:cast(?SERVER, stop).
 
-get_count() ->
-    gen_server:call(?SERVER, get_count).
-
 terminate(_Reason, State) ->
     {noreply, State}.
 
 init([LSock]) ->
+    io:format("ei_server: init"),
     {ok, #state{lsock = LSock}, 0}.
 
 handle_info({tcp, Socket, RawData}, State) ->
@@ -50,7 +48,7 @@ handle_info(timeout, #state{lsock = LSock} = State) ->
     io:format("~p: waiting for connection on socket ~p~n", [?MODULE, LSock]),
     {ok, Sock} = gen_tcp:accept(LSock),
     io:format("~p: received new connection on socket ~p~n", [?MODULE, Sock]),
-    ei_sup:start_child(),
+    ei_server_sup:start_child(),
     {noreply, State}.
 
 handle_commands([]) ->

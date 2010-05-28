@@ -4,7 +4,7 @@
 
 -behaviour(supervisor).
 
--export([start_link/1, start_child/0]).
+-export([start_link/1]).
 -export([init/1]).
 
 -define(SERVER, ?MODULE).
@@ -12,24 +12,15 @@
 start_link(LSock) ->
     supervisor:start_link({local, ?SERVER}, ?MODULE, [LSock]).
 
-start_child() ->
-    supervisor:start_child(?SERVER, []).
-
 init([LSock]) ->
-    RestartStrategy = simple_one_for_one,
-    MaxRestarts = 0,
-    MaxSecondsBetweenRestarts = 1,
+    ServerSup = {ei_server_sup, {ei_server_sup, start_link, [LSock]},
+	      permanent, 2000, supervisor, [ei_server]},
 
-    SupFlags = {RestartStrategy, MaxRestarts, MaxSecondsBetweenRestarts},
+    EventManager = {ei_event, {ei_event, start_link, []},
+	     permanent, 2000, worker, [ei_event]},
 
-    Restart = temporary,
-    Shutdown = brutal_kill,
-    Type = worker,
+    Children = [EventManager, ServerSup],
 
-    Server = {ei_server, {ei_server, start_link, [LSock]},
-	      Restart, Shutdown, Type, [ei_server]},
+    RestartStrategy = {one_for_one, 4, 3600},
 
-    Event = {ei_event, {ei_event, start_link, []},
-	     Restart, Shutdown, Type, [ei_event]},
-
-    {ok, {SupFlags, [Server, Event]}}.
+    {ok, {RestartStrategy, Children}}.
