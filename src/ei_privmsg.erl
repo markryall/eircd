@@ -40,12 +40,9 @@ handle_info({tcp_closed, _Port}, State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
-handle_event({create, {Key, Value}}, State) ->
-    io:format("handle_event: create(~w, ~w)", [Key, Value]),
-    {ok, State};
-handle_event({lookup, Key}, State) ->
-    io:format("handle_event: lookup(~w)", [Key]),
-    {ok, State};
-handle_event({user_nick_registration, Nick}, State) ->
-    io:format("nick registeration: " ++ Nick),
+handle_event(Ignored, State) ->
+    io:format("~p: ignoring event ~p~n",[?MODULE,Ignored]),
     {ok, State}.
+% handle_event({user_nick_registration, Nick}, State) ->
+%     io:format("nick registeration: " ++ Nick),
+%     {ok, State}.
