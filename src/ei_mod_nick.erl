@@ -40,7 +40,7 @@ code_change(_OldVsn, State, _Extra) ->
 
 handle_event({user_nick_registration, {Pid, Nick}}, State) ->
     io:format("ei_mod_nick: processing nick registration event with nick: ~p~n", [Nick]),
-    ei_mnesia:insert(nick, Nick, Pid),
+    ei_user:store_nick(Nick, Pid),
     {ok, State};
 handle_event(_, State) ->
     {ok, State}.

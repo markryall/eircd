@@ -10,9 +10,9 @@ user(Pid, Arguments) ->
 
     io:format("ei_commands -> user: ~p", [Pid]),
 
-    Nick = ei_mnesia:select(nick, Pid),
+    Nick = ei_user:get_nick(Pid),
     % TODO: replace second Username below with Realname
-    ei_mnesia:insert(userinfo, Nick, Username, Hostname, Servername, Username),
+    ei_user:store_userinfo(Nick, Username, Hostname, Servername, Username),
     Pid ! {send, ":eircd 001 " ++ Nick ++ " :Welcome to the eircd Internet Relay Chat Network " ++ Nick ++ "\r\n"}.
 
 nick(Pid, [Nick]) ->
