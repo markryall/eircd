@@ -4,34 +4,31 @@
 
 -export([user/2, nick/2, ping/2, join/2, privmsg/2, part/2]).
 
-user(Socket, Arguments) ->
+user(Pid, Arguments) ->
     io:format("~p: processing user command with args ~p~n", [?MODULE, Arguments]),
     [Username, Hostname, Servername|_Realname] = Arguments,
-    Nick = ei_mnesia:select(nick, self()),
+
+    io:format("ei_commands -> user: ~p", [Pid]),
+
+    Nick = ei_mnesia:select(nick, Pid),
     % TODO: replace second Username below with Realname
     ei_mnesia:insert(userinfo, Nick, Username, Hostname, Servername, Username),
-    gen_tcp:send(Socket, ":eircd 001 " ++ Nick ++ " :Welcome to the eircd Internet Relay Chat Network " ++ Nick ++ "\r\n").
+    Pid ! {send, ":eircd 001 " ++ Nick ++ " :Welcome to the eircd Internet Relay Chat Network " ++ Nick ++ "\r\n"}.
 
-nick(_Socket, [Nick]) ->
-    io:format("~p: processing nick command with nick=~p~n", [?MODULE, Nick]),
-    ei_mnesia:insert(nick, Nick, self()),
-    ei_event:nick_registration(Nick).
+nick(Pid, [Nick]) ->
+    ei_event:nick_registration(Pid, Nick).
 
-ping(Socket, _) ->
-    io:format("~p: processing ping command~n", [?MODULE]),
-    gen_tcp:send(Socket, "PONG\r\n").
+ping(Pid, _) ->
+    ei_event:ping(Pid).
 
-join(Socket, [Channel]) ->
+join(Pid, [Channel]) ->
+    ei_event:join(Pid, Channel).
+    
+
+part(Pid, [Channel]) ->
     io:format("~p: processing join command with channel=~p~n", [?MODULE, Channel]),
     Nick = ei_mnesia:select(nick, self()),
-    gen_tcp:send(Socket, ":eircd MODE " ++ Channel ++ " +ns\r\n"),
-    gen_tcp:send(Socket, ":eircd 353 " ++ Nick ++ " @ " ++ Channel ++ " :@" ++ Nick ++ "\r\n"),
-    gen_tcp:send(Socket, ":eircd 366 " ++ Nick ++ " " ++ Channel ++ " :End of /NAMES list.\r\n").
-
-part(Socket, [Channel]) ->
-    io:format("~p: processing join command with channel=~p~n", [?MODULE, Channel]),
-    Nick = ei_mnesia:select(nick, self()),
-    gen_tcp:send(Socket, io_lib:format(":~s!user@host PART ~s\r\n",[Nick, Channel])).
+    Pid ! {send, io_lib:format(":~s!user@host PART ~s\r\n",[Nick, Channel])}.
 
 privmsg(_Socket, Arguments) ->
     io:format("~p: processing privmsg command with args~p~n", [?MODULE, Arguments]).

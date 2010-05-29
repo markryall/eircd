@@ -19,7 +19,7 @@
 
 -define(SERVER, ?MODULE).
 
--record(state, {lsock}).
+-record(state, {lsock, socket}).
 
 start_link(LSock) ->
     io:format("ei_server: start_link"),
@@ -42,12 +42,16 @@ handle_info({tcp, Socket, RawData}, State) ->
 handle_info({tcp_closed, Port}, State) ->
 	io:format("~p: socket on port ~p closed~n", [?MODULE, Port]),
 	{noreply, State};
-handle_info(timeout, #state{lsock = LSock} = State) ->
+handle_info(timeout, #state{lsock = LSock} = _State) ->
     io:format("~p: waiting for connection on socket ~p~n", [?MODULE, LSock]),
     {ok, Sock} = gen_tcp:accept(LSock),
     io:format("~p: received new connection on socket ~p~n", [?MODULE, Sock]),
     ei_server_sup:start_child(),
+    {noreply, #state{lsock=LSock, socket=Sock}};
+handle_info({send, Msg}, #state{socket=Sock} = State) ->
+    gen_tcp:send(Sock, Msg),
     {noreply, State}.
+		   
 
 handle_commands([], _Socket) ->
     io:format("~p: finished processing commands~n", [?MODULE]);
@@ -56,7 +60,7 @@ handle_commands([Command|Commands], Socket) ->
     case string:tokens(Command, " ") of
         [Token|Arguments] ->
             try
-                apply(ei_commands, list_to_atom(string:to_lower(Token)), [Socket, Arguments])
+                apply(ei_commands, list_to_atom(string:to_lower(Token)), [self(), Arguments])
             catch
                 error:undef -> io:format("~p: failed to apply function ~p~n", [?MODULE, Token])
             end;
@@ -64,7 +68,11 @@ handle_commands([Command|Commands], Socket) ->
     end,
     handle_commands(Commands, Socket).
 
-handle_cast(stop, State) ->
+%handle_cast({send, Msg}, #state{socket=Sock} = State) ->
+%    io:format("ei_server -> handle_cast: 1"),
+%    gen_tcp:send(Sock, Msg),
+%    {ok, State};
+handle_cast(stop, State) -> 
     {stop, normal, State}.
 
 handle_call(Msg, _From, State) ->
