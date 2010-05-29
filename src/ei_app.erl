@@ -17,6 +17,7 @@ start(_Type, _StartArgs) ->
 	    ei_mod_nick:add_handler(),
 	    ei_mod_ping:add_handler(),
 	    ei_mod_join:add_handler(),
+	    ei_mod_part:add_handler(),
 	    ei_server_sup:start_child(),
 	    {ok, Pid};
 	Other ->

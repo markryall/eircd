@@ -26,9 +26,7 @@ join(Pid, [Channel]) ->
     
 
 part(Pid, [Channel]) ->
-    io:format("~p: processing join command with channel=~p~n", [?MODULE, Channel]),
-    Nick = ei_mnesia:select(nick, self()),
-    Pid ! {send, io_lib:format(":~s!user@host PART ~s\r\n",[Nick, Channel])}.
+    ei_event:part(Pid, Channel).
 
 privmsg(_Socket, Arguments) ->
     io:format("~p: processing privmsg command with args~p~n", [?MODULE, Arguments]).
