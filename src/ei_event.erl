@@ -3,6 +3,7 @@
 -export([
 	 start_link/0,
 	 nick_registration/2,
+	 userinfo_registration/5,
       	 add_handler/2,
 	 delete_handler/2,
 	 ping/1,
@@ -23,6 +24,9 @@ delete_handler(Handler, Args) ->
 
 nick_registration(Pid, Nick) ->
     gen_event:notify(?SERVER, {user_nick_registration, {Pid, Nick}}).
+
+userinfo_registration(Pid, Username, Hostname, Servername, Realname) ->
+    gen_event:notify(?SERVER, {user_userinfo_registration, {Pid, Username, Hostname, Servername, Realname}}).
 
 ping(Pid) ->
     gen_event:notify(?SERVER, {user_ping, {Pid}}).

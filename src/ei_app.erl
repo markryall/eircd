@@ -15,6 +15,7 @@ start(_Type, _StartArgs) ->
     case ei_sup:start_link(LSock) of
 	{ok, Pid} ->
 	    ei_mod_nick:add_handler(),
+	    ei_mod_userinfo:add_handler(),
 	    ei_mod_ping:add_handler(),
 	    ei_mod_join:add_handler(),
 	    ei_mod_part:add_handler(),
