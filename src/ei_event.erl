@@ -6,6 +6,7 @@
 	 userinfo_registration/5,
       	 add_handler/2,
 	 delete_handler/2,
+	 privmsg/4,
 	 ping/1,
 	 join/2,
 	 part/2
@@ -36,3 +37,8 @@ join(Pid, Channel) ->
 
 part(Pid, Channel) ->
     gen_event:notify(?SERVER, {user_part, {Pid, Channel}}).
+
+privmsg(Pid, Nick, Channel, Msg) ->
+    gen_event:notify(?SERVER, {user_privmsg, {Pid, Nick, Channel, Msg}}).
+
+				    

@@ -59,19 +59,15 @@ handle_commands([Command|Commands], Socket) ->
     io:format("~p: processing command ~p~n", [?MODULE, Command]),
     case string:tokens(Command, " ") of
         [Token|Arguments] ->
-            try
-                apply(ei_commands, list_to_atom(string:to_lower(Token)), [self(), Arguments])
-            catch
-                error:undef -> io:format("~p: failed to apply function ~p~n", [?MODULE, Token])
-            end;
+            %try
+                apply(ei_commands, list_to_atom(string:to_lower(Token)), [self(), Arguments]);
+            %catch
+            %    error:undef -> io:format("~p: failed to apply function ~p with arguments ~p~n", [?MODULE, Token, Arguments])
+            %end;
         _ -> io:format("~p: ignored command ~p~n", [?MODULE, Command])
     end,
     handle_commands(Commands, Socket).
 
-%handle_cast({send, Msg}, #state{socket=Sock} = State) ->
-%    io:format("ei_server -> handle_cast: 1"),
-%    gen_tcp:send(Sock, Msg),
-%    {ok, State};
 handle_cast(stop, State) -> 
     {stop, normal, State}.
 

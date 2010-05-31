@@ -27,5 +27,7 @@ join(Pid, [Channel]) ->
 part(Pid, [Channel]) ->
     ei_event:part(Pid, Channel).
 
-privmsg(_Socket, Arguments) ->
-    io:format("~p: processing privmsg command with args~p~n", [?MODULE, Arguments]).
+privmsg(Pid, Args) ->
+    [Channel|Msg] = Args,
+    Nick = ei_user:get_nick(Pid),
+    ei_event:privmsg(Pid, Nick, Channel, Msg).

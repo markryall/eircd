@@ -2,10 +2,11 @@
 
 -include_lib("stdlib/include/qlc.hrl").
 
--export([init/0, insert/3, insert/6, select/2]).
+-export([init/0, insert/3, insert/6, select/2, insert_channel/2, select_channel/2]).
 
 -record(nick, {nick, pid}).
 -record(userinfo, {nick, username, hostname, servername, realname}).
+-record(channel, {pid, name}).
 
 init() ->
     delete_schema(),
@@ -32,6 +33,12 @@ insert(userinfo, Nick, Username, Hostname, Servername, Realname) ->
 		mnesia:write(#userinfo{nick=Nick, username=Username, hostname=Hostname, servername=Servername, realname=Realname})
 	end,
     mnesia:transaction(Fun).
+insert_channel(Pid, Channel) ->
+    Fun =
+	fun() ->
+		mnesia:write(#channel{pid=Pid, name=Channel})
+	end,
+    mnesia:transaction(Fun).
 
 select(nick, Pid) ->
     Fun = 
@@ -47,6 +54,14 @@ select(userinfo, Nick) ->
 	fun() ->
 		Query = qlc:q([U || U <- mnesia:table(userinfo),
 			    U#userinfo.nick == Nick]),
+		qlc:e(Query)
+	end,
+    mnesia:transaction(Fun).
+select_channel(channel, Channel) ->
+    Fun =
+	fun() ->
+		Query = qlc:q([P || P <- mnesia:table(channel),
+				    P#channel.name == Channel]),
 		qlc:e(Query)
 	end,
     mnesia:transaction(Fun).

@@ -1,4 +1,4 @@
--module(ei_mod_join).
+-module(ei_mod_privmsg).
 
 -behaviour(gen_event).
 
@@ -32,19 +32,14 @@ terminate(_Reason, State) ->
 handle_call(Msg, State) ->
     {reply, {ok, Msg}, State}.
 
-handle_info({tcp_closed, _Port}, State) ->
+handle_info(_, State) ->
     {noreply, State}.
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
-handle_event({user_join, {Pid, Channel}}, State) ->
-    io:format("~p: processing join command with channel=~p~n", [?MODULE, Channel]),
-    Nick = ei_user:get_nick(Pid),
-    ei_user:join(Pid, Channel),
-    Pid ! {send, ":eircd MODE " ++ Channel ++ " +ns\r\n"},
-    Pid ! {send, ":eircd 353 " ++ Nick ++ " @ " ++ Channel ++ " :@" ++ Nick ++ "\r\n"},
-    Pid ! {send, ":eircd 366 " ++ Nick ++ " " ++ Channel ++ " :End of /NAMES list.\r\n"},
+handle_event({user_privmsg, {_Pid, _Nick, _Channel, _Msg}}, State) ->
+    io:format("~p: processing ~p event~n", [?MODULE, "user_privmsg"]),
     {ok, State};
 handle_event(_, State) ->
     {ok, State}.

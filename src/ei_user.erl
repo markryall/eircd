@@ -1,6 +1,6 @@
 -module(ei_user).
 
--export([get_nick/1, store_nick/2, get_userinfo/1, store_userinfo/5]).
+-export([get_nick/1, store_nick/2, get_userinfo/1, store_userinfo/5, join/2]).
 
 get_nick(Pid) ->
     ei_mnesia:select(nick, Pid).
@@ -13,3 +13,6 @@ get_userinfo(Nick) ->
 
 store_userinfo(Nick, Username, Hostname, Servername, Realname) ->
     ei_mnesia:insert(userinfo, Nick, Username, Hostname, Servername, Realname).
+
+join(Pid, Channel) ->
+    ei_mnesia:insert_channel(Pid, Channel).
