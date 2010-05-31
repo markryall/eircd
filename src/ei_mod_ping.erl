@@ -44,7 +44,3 @@ handle_event({user_ping, {Pid}}, State) ->
     {ok, State};
 handle_event(_, State) ->
     {ok, State}.
-
-% handle_event({user_nick_registration, Nick}, State) ->
-%     io:format("nick registeration: " ++ Nick),
-%     {ok, State}.

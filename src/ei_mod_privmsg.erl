@@ -38,8 +38,10 @@ handle_info(_, State) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
-handle_event({user_privmsg, {_Pid, _Nick, _Channel, _Msg}}, State) ->
+handle_event({user_privmsg, {Pid, Nick, Channel, Msg}}, State) ->
     io:format("~p: processing ~p event~n", [?MODULE, "user_privmsg"]),
+    Pids = lists:delete(Pid, ei_user:get_channel_pids(Channel)),
+    ei_user:broadcast_message(Pids, "Message from " ++ Nick ++ ": " ++ Msg ++ "\r\n"),
     {ok, State};
 handle_event(_, State) ->
     {ok, State}.
