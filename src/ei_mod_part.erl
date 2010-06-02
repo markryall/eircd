@@ -15,6 +15,8 @@
 	 terminate/2
 	 ]).
 
+-include("ei_db.hrl").
+
 -record(state, {}).
 
 init([]) ->
@@ -40,8 +42,9 @@ code_change(_OldVsn, State, _Extra) ->
 
 handle_event({user_part, {Pid, Channel}}, State) ->
     io:format("~p: processing part command with channel=~p~n", [?MODULE, Channel]),
-    Nick = ei_mnesia:select(nick, Pid),
-    Pid ! {send, io_lib:format(":~s!user@host PART ~s\r\n",[Nick, Channel])},
+    Nick = ei_user:get_nick(Pid),
+    UserInfo = ei_user:get_userinfo(Pid),
+    Pid ! {send, io_lib:format(":~s!~s@~s PART ~s\r\n",[Nick, UserInfo#userinfo.username ,UserInfo#userinfo.hostname, Channel])},
     {ok, State};
 handle_event(_, State) ->
     {ok, State}.
