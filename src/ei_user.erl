@@ -11,16 +11,16 @@
 	]).
 
 get_nick(Pid) ->
-    ei_mnesia:select(nick, Pid).
+    ei_mnesia:select_nick(Pid).
 
 store_nick(Nick, Pid) ->
-    ei_mnesia:insert(nick, Nick, Pid).
+    ei_mnesia:insert_nick(Nick, Pid).
 
 get_userinfo(Nick) ->
-    ei_mnensia:select(userinfo, Nick).
+    ei_mnensia:select_userinfo(Nick).
 
 store_userinfo(Nick, Username, Hostname, Servername, Realname) ->
-    ei_mnesia:insert(userinfo, Nick, Username, Hostname, Servername, Realname).
+    ei_mnesia:insert_userinfo(Nick, Username, Hostname, Servername, Realname).
 
 join(Pid, Channel) ->
     ei_mnesia:insert_channel(Pid, Channel).
@@ -31,5 +31,5 @@ get_channel_pids(Channel) ->
 broadcast_message([], _Msg) ->
     done;
 broadcast_message([H|T], Msg) ->
-    H ! {send, Msg },
+    H ! {send, Msg},
     broadcast_message(T, Msg).

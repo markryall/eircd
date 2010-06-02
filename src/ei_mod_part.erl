@@ -40,7 +40,7 @@ code_change(_OldVsn, State, _Extra) ->
 
 handle_event({user_part, {Pid, Channel}}, State) ->
     io:format("~p: processing part command with channel=~p~n", [?MODULE, Channel]),
-    Nick = ei_mnesia:select(nick, Pid),
+    Nick = ei_mnesia:select_nick(Pid),
     Pid ! {send, io_lib:format(":~s!user@host PART ~s\r\n",[Nick, Channel])},
     {ok, State};
 handle_event(_, State) ->
