@@ -11,22 +11,22 @@
 	]).
 
 get_nick(Pid) ->
-    ei_mnesia:select_nick(Pid).
+    ei_db:select_nick(Pid).
 
 store_nick(Nick, Pid) ->
-    ei_mnesia:insert_nick(Nick, Pid).
+    ei_db:insert_nick(Nick, Pid).
 
-get_userinfo(Nick) ->
-    ei_mnensia:select_userinfo(Nick).
+get_userinfo(Pid) ->
+    ei_db:select_userinfo(Pid).
 
-store_userinfo(Nick, Username, Hostname, Servername, Realname) ->
-    ei_mnesia:insert_userinfo(Nick, Username, Hostname, Servername, Realname).
+store_userinfo(Pid, Username, Hostname, Servername, Realname) ->
+    ei_db:insert_userinfo(Pid, Username, Hostname, Servername, Realname).
 
 join(Pid, Channel) ->
-    ei_mnesia:insert_channel(Pid, Channel).
+    ei_db:insert_channel(Pid, Channel).
 
 get_channel_pids(Channel) ->
-    ei_mnesia:select_channel_pids(Channel).
+    ei_db:select_channel_pids(Channel).
 
 broadcast_message([], _Msg) ->
     done;

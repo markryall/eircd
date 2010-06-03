@@ -1,4 +1,4 @@
--module(ei_mnesia).
+-module(ei_db).
 
 -include_lib("stdlib/include/qlc.hrl").
 
@@ -12,9 +12,7 @@
 	 select_channel_pids/1
 	]).
 
--record(nick, {nick, pid}).
--record(userinfo, {nick, username, hostname, servername, realname}).
--record(channel, {pid, name}).
+-include("ei_db.hrl").
 
 init() ->
     delete_schema(),
@@ -37,10 +35,10 @@ insert_nick(Nick, Pid) ->
 		mnesia:write(#nick{nick=Nick, pid=Pid})
 	end,
     mnesia:transaction(Fun).
-insert_userinfo(Nick, Username, Hostname, Servername, Realname) ->
+insert_userinfo(Pid, Username, Hostname, Servername, Realname) ->
     Fun =
 	fun() ->
-		mnesia:write(#userinfo{nick=Nick, username=Username, hostname=Hostname, servername=Servername, realname=Realname})
+		mnesia:write(#userinfo{pid=Pid, username=Username, hostname=Hostname, servername=Servername, realname=Realname})
 	end,
     mnesia:transaction(Fun).
 insert_channel(Pid, Channel) ->
@@ -59,14 +57,15 @@ select_nick(Pid) ->
 	end,
     {atomic, [Nick]} = mnesia:transaction(Fun),
     Nick.
-select_userinfo(Nick) ->
+select_userinfo(Pid) ->
     Fun =
 	fun() ->
 		Query = qlc:q([U || U <- mnesia:table(userinfo),
-			    U#userinfo.nick == Nick]),
+			    U#userinfo.pid == Pid]),
 		qlc:e(Query)
 	end,
-    mnesia:transaction(Fun).
+    {atomic, [User]} = mnesia:transaction(Fun),
+    User.
 select_channel_pids(Channel) ->
     Fun =
 	fun() ->

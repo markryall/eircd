@@ -29,5 +29,4 @@ part(Pid, [Channel]) ->
 
 privmsg(Pid, Args) ->
     [Channel|Msg] = Args,
-    Nick = ei_user:get_nick(Pid),
-    ei_event:privmsg(Pid, Nick, Channel, Msg).
+    ei_event:privmsg(Pid, Channel, Msg).

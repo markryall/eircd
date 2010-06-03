@@ -1,0 +1,3 @@
+-record(nick, {nick, pid}).
+-record(userinfo, {pid, username, hostname, servername, realname}).
+-record(channel, {pid, name}).

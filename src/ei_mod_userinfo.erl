@@ -41,8 +41,8 @@ code_change(_OldVsn, State, _Extra) ->
 handle_event({user_userinfo_registration, {Pid, Username, Hostname, Servername, Realname}}, State) ->
     io:format("ei_mod_userinfo: processing userinfo registration event~n", []),
     Nick = ei_user:get_nick(Pid),
-    ei_user:store_userinfo(Nick, Username, Hostname, Servername, Realname),
-    Pid ! {send, ":eircd 001 " ++ Nick ++ " :Welcome to the eircd Internet Relay Chat Network " ++ Nick ++ "\r\n"},
+    ei_user:store_userinfo(Pid, Username, Hostname, Servername, Realname),
+    Pid ! {send, io_lib:format(":eircd 001 ~s :Welcome to the eircd Internet Relay Chat Network ~s\r\n", [Nick, Nick])},
     {ok, State};
 handle_event(_, State) ->
     {ok, State}.
