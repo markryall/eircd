@@ -1,14 +1,14 @@
 -module(ei_commands).
 
--include_lib("eunit/include/eunit.hrl").
-
 -export([user/2, nick/2, ping/2, join/2, privmsg/2, part/2]).
 
+-include_lib("ei_logging.hrl").
+
 user(Pid, Arguments) ->
-    io:format("~p: processing user command with args ~p~n", [?MODULE, Arguments]),
+    ?LOG(io_lib:format("processing user command with args ~p", [Arguments])),
     [Username, Hostname, Servername|_Realname] = Arguments,
 
-    io:format("ei_commands -> user: ~p", [Pid]),
+    ?LOG(io_lib:format("user: ~p", [Pid])),
 
     % TODO: replace second Username below with Realname
     ei_event:userinfo_registration(Pid, Username, Hostname, Servername, Username).

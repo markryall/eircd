@@ -15,6 +15,8 @@
 	 terminate/2
 	 ]).
 
+-include_lib("ei_logging.hrl").
+
 -record(state, {}).
 
 init([]) ->
@@ -39,7 +41,7 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
 handle_event({user_ping, {Pid}}, State) ->
-    io:format("ei_mod_ping: processing ping command~n", []),
+    ?LOG("processing ping command"),
     Pid ! {send, "PONG\r\n"},
     {ok, State};
 handle_event(_, State) ->

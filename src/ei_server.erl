@@ -1,6 +1,6 @@
 -module(ei_server).
 
--include_lib("eunit/include/eunit.hrl").
+%-include("ei_logging.hrl").
 
 -behaviour(gen_server).
 
@@ -17,12 +17,14 @@
 	 code_change/3
 	]).
 
+-include_lib("ei_logging.hrl").
+
 -define(SERVER, ?MODULE).
 
 -record(state, {lsock, socket}).
 
 start_link(LSock) ->
-    io:format("ei_server: start_link"),
+    ?LOG("start_link"),
     gen_server:start_link(?MODULE, [LSock], []).
 
 stop() ->
@@ -32,20 +34,20 @@ terminate(_Reason, State) ->
     {noreply, State}.
 
 init([LSock]) ->
-    io:format("ei_server: init"),
+    ?LOG("init"),
     {ok, #state{lsock = LSock}, 0}.
 
 handle_info({tcp, Socket, RawData}, State) ->
-    io:format("~p: received data ~p on socket ~p~n", [?MODULE, RawData, Socket]),
+    ?LOG(io_lib:format("received data ~p on socket ~p~n", [RawData, Socket])),
     handle_commands(string:tokens(RawData, "\r\n"), Socket),
     {noreply, State};
 handle_info({tcp_closed, Port}, State) ->
-	io:format("~p: socket on port ~p closed~n", [?MODULE, Port]),
+	?LOG(io_lib:format("socket on port ~p closed", [Port])),
 	{noreply, State};
 handle_info(timeout, #state{lsock = LSock} = _State) ->
-    io:format("~p: waiting for connection on socket ~p~n", [?MODULE, LSock]),
+    ?LOG(io_lib:format("waiting for connection on socket ~p", [LSock])),
     {ok, Sock} = gen_tcp:accept(LSock),
-    io:format("~p: received new connection on socket ~p~n", [?MODULE, Sock]),
+    ?LOG(io_lib:format("received new connection on socket ~p", [Sock])),
     ei_server_sup:start_child(),
     {noreply, #state{lsock=LSock, socket=Sock}};
 handle_info({send, Msg}, #state{socket=Sock} = State) ->
@@ -54,9 +56,9 @@ handle_info({send, Msg}, #state{socket=Sock} = State) ->
 		   
 
 handle_commands([], _Socket) ->
-    io:format("~p: finished processing commands~n", [?MODULE]);
+    ?LOG("finished processing commands");
 handle_commands([Command|Commands], Socket) ->
-    io:format("~p: processing command ~p~n", [?MODULE, Command]),
+    ?LOG("processing command " ++ Command),
     case string:tokens(Command, " ") of
         [Token|Arguments] ->
             %try
@@ -64,7 +66,7 @@ handle_commands([Command|Commands], Socket) ->
             %catch
             %    error:undef -> io:format("~p: failed to apply function ~p with arguments ~p~n", [?MODULE, Token, Arguments])
             %end;
-        _ -> io:format("~p: ignored command ~p~n", [?MODULE, Command])
+        _ -> ?LOG(io_lib:format("ignored command ~p", [Command]))
     end,
     handle_commands(Commands, Socket).
 
@@ -76,8 +78,3 @@ handle_call(Msg, _From, State) ->
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
-
-terminate_test_() ->
-    [?_assert(ei_server:terminate(reason, state) =:= {noreply, state})].
-
-

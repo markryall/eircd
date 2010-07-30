@@ -15,6 +15,8 @@
 	 terminate/2
 	 ]).
 
+-include_lib("ei_logging.hrl").
+
 -record(state, {}).
 
 init([]) ->
@@ -39,7 +41,7 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
 handle_event({user_nick_registration, {Pid, Nick}}, State) ->
-    io:format("ei_mod_nick: processing nick registration event with nick: ~p~n", [Nick]),
+    ?LOG(io_lib:format("processing nick registration event with nick: ~p", [Nick])),
     ei_user:store_nick(Nick, Pid),
     {ok, State};
 handle_event(_, State) ->

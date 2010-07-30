@@ -8,6 +8,8 @@
 
 -export([init/1]).
 
+-include_lib("ei_logging.hrl").
+
 -define(SERVER, ?MODULE).
 
 start_link(LSock) ->
@@ -17,7 +19,7 @@ start_child() ->
     supervisor:start_child(?SERVER, []).
 
 init([LSock]) ->
-    io:format("ei_server_sup: init"),
+    ?LOG("init"),
     ServerSpec = {ei_server, {ei_server, start_link, [LSock]},
 	       temporary, brutal_kill, worker, [ei_server]},
     Children = [ServerSpec],

@@ -15,6 +15,8 @@
 	 terminate/2
 	 ]).
 
+-include_lib("ei_logging.hrl").
+
 -record(state, {}).
 
 init([]) ->
@@ -39,7 +41,7 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
 handle_event({user_userinfo_registration, {Pid, Username, Hostname, Servername, Realname}}, State) ->
-    io:format("ei_mod_userinfo: processing userinfo registration event~n", []),
+    ?LOG("processing userinfo registration event"),
     Nick = ei_user:get_nick(Pid),
     ei_user:store_userinfo(Pid, Username, Hostname, Servername, Realname),
     Pid ! {send, io_lib:format(":eircd 001 ~s :Welcome to the eircd Internet Relay Chat Network ~s\r\n", [Nick, Nick])},

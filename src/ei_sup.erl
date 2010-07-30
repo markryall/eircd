@@ -1,7 +1,5 @@
 -module(ei_sup).
 
--include_lib("eunit/include/eunit.hrl").
-
 -behaviour(supervisor).
 
 -export([start_link/1]).

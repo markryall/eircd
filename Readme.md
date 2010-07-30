@@ -20,7 +20,7 @@ Starting up (requires ruby, rake and sinan)
 Open a separate console and run:
 
      cd _build/development/apps/eircd-0.1.0/ebin
-     cd screen -S eircd
+     screen -S eircd
 
 In your own console
 

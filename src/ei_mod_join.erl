@@ -15,6 +15,8 @@
 	 terminate/2
 	 ]).
 
+-include_lib("ei_logging.hrl").
+
 -record(state, {}).
 
 init([]) ->
@@ -39,7 +41,7 @@ code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
 handle_event({user_join, {Pid, Channel}}, State) ->
-    io:format("~p: processing join command with channel=~p~n", [?MODULE, Channel]),
+    ?LOG(io_lib:format("processing join command with channel=~p", [Channel])),
     Nick = ei_user:get_nick(Pid),
     ei_user:join(Pid, Channel),
     Pid ! {send, ":eircd MODE " ++ Channel ++ " +ns\r\n"},
