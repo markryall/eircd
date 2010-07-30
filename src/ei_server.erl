@@ -1,7 +1,5 @@
 -module(ei_server).
 
-%-include("ei_logging.hrl").
-
 -behaviour(gen_server).
 
 -export([
@@ -54,7 +52,6 @@ handle_info({send, Msg}, #state{socket=Sock} = State) ->
     gen_tcp:send(Sock, Msg),
     {noreply, State}.
 		   
-
 handle_commands([], _Socket) ->
     ?LOG("finished processing commands");
 handle_commands([Command|Commands], Socket) ->
