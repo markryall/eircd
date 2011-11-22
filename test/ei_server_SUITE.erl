@@ -44,5 +44,10 @@ test_registration(Config) ->
   MsgPart = <<":user2!a@b PART #channel1\r\n">>,
   {ok, MsgPart} = gen_tcp:recv(Sock, 0),
 
+  % PING
+  ok = gen_tcp:send(Sock, "PING\r\n"),
+  MsgPing = <<"PONG\r\n">>,
+  {ok, MsgPing} = gen_tcp:recv(Sock, 0),
+
   ok = gen_tcp:close(Sock).
 
