@@ -9,7 +9,6 @@
 	      ei_sup,
 	      ei_db,
 	      ei_server_sup,
-	      ei_event,
 	      ei_commands,
 	      ei_user,
 	      ei_mod_privmsg,
