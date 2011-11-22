@@ -14,18 +14,3 @@ Basic usage
 	# have an amazing irc experience*
 	application:stop(eircd).'
 
-Starting up (requires ruby, rake and sinan)
----
-
-Open a separate console and run:
-
-     cd _build/development/apps/eircd-0.1.0/ebin
-     screen -S eircd
-
-In your own console
-
-	rake start
-
-To shutdown the server
-
-	rake stop
