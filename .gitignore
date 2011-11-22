@@ -4,4 +4,5 @@ _build
 #*#
 Mnesia.*@*
 *.swp
+logs
 
