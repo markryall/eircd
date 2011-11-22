@@ -25,7 +25,7 @@ end
 include Eircd
 
 task :build do
-  sh "sinan build"
+  sh "./rebar compile"
 end
 
 task :features => :start do

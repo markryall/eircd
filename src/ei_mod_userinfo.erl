@@ -3,10 +3,8 @@
 -behaviour(gen_event).
 
 -export([
-	 init/1,
-	 add_handler/0,
-	 delete_handler/0
-	 ]).
+	 init/1
+         ]).
 -export([
 	 handle_event/2,
 	 handle_call/2,
@@ -21,12 +19,6 @@
 
 init([]) ->
     {ok, #state{}}.
-
-add_handler() ->
-    ei_event:add_handler(?MODULE, []).
-
-delete_handler() ->
-    ei_event:delete_handler(?MODULE, []).
 
 terminate(_Reason, State) ->
     {noreply, State}.

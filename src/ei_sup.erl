@@ -14,10 +14,7 @@ init([LSock]) ->
     ServerSup = {ei_server_sup, {ei_server_sup, start_link, [LSock]},
 	      permanent, 2000, supervisor, [ei_server]},
 
-    EventManager = {ei_event, {ei_event, start_link, []},
-	     permanent, 2000, worker, [ei_event]},
-
-    Children = [EventManager, ServerSup],
+    Children = [ServerSup],
 
     RestartStrategy = {one_for_one, 4, 3600},
 
