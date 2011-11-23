@@ -16,10 +16,9 @@
 	]).
 
 -include_lib("ei_logging.hrl").
+-include_lib("ei_common.hrl").
 
 -define(SERVER, ?MODULE).
-
--record(state, {lsock, socket}).
 
 start_link(LSock) ->
     ?LOG("start_link"),
