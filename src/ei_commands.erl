@@ -3,6 +3,7 @@
 -export([user/3, nick/3, ping/3, join/3, privmsg/3, part/3]).
 
 -include_lib("ei_logging.hrl").
+-include_lib("ei_common.hrl").
 
 user(Pid, Arguments, State) ->
     ?LOG(io_lib:format("processing user command with args ~p", [Arguments])),
@@ -12,7 +13,6 @@ user(Pid, Arguments, State) ->
 
     % TODO: replace second Username below with Realname
     apply(ei_mod_userinfo, handle_event, [{user_userinfo_registration, {Pid, Username, Hostname, Servername, Username}}, State]).
-
 
 nick(Pid, [Nick], State) ->
     apply(ei_mod_nick, handle_event, [{user_nick_registration, {Pid, Nick}}, State]).

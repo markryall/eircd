@@ -57,14 +57,12 @@ handle_commands([Command|Commands], Socket, State) ->
     ?LOG("processing command " ++ Command),
     case string:tokens(Command, " ") of
         [Token|Arguments] ->
-            %try
-                apply(ei_commands, list_to_atom(string:to_lower(Token)), [self(), Arguments, State]);
-            %catch
-            %    error:undef -> io:format("~p: failed to apply function ~p with arguments ~p~n", [?MODULE, Token, Arguments])
-            %end;
-        _ -> ?LOG(io_lib:format("ignored command ~p", [Command]))
-    end,
-    handle_commands(Commands, Socket, State).
+            {ok, State1} = apply(ei_commands, list_to_atom(string:to_lower(Token)), [self(), Arguments, State]),
+            handle_commands(Commands, Socket, State1);
+        _ -> 
+            ?LOG(io_lib:format("ignored command ~p", [Command])),
+            handle_commands(Commands, Socket, State)
+    end.
 
 handle_cast(stop, State) -> 
     {stop, normal, State}.
