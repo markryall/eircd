@@ -1,9 +1,25 @@
 -module(ei_commands).
 
--export([user/3, nick/3, ping/3, join/3, privmsg/3, part/3]).
+-export([user/3, nick/3, ping/3, join/3, privmsg/3, part/3, handle/3]).
 
 -include_lib("ei_logging.hrl").
 -include_lib("ei_common.hrl").
+
+handle([], _Socket, State) ->
+    ?LOG("finished processing commands"),
+    {ok, State};
+handle([Command|Commands], Socket, State) ->
+    ?LOG("processing command " ++ Command),
+    case string:tokens(Command, " ") of
+        [Token|Arguments] ->
+            ?LOG(io_lib:format("current state: ~p", [State])),
+            {ok, State1} = apply(ei_commands, list_to_atom(string:to_lower(Token)), [self(), Arguments, State]),
+            ?LOG(io_lib:format("new state: ~p", [State1])),
+            handle(Commands, Socket, State1);
+        _ -> 
+            ?LOG(io_lib:format("ignored command ~p", [Command])),
+            handle(Commands, Socket, State)
+    end.
 
 user(Pid, Arguments, State) ->
     ?LOG(io_lib:format("processing user command with args ~p", [Arguments])),
