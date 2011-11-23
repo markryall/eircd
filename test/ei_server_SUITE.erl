@@ -36,18 +36,17 @@ test_registration(Config) ->
 
   %% join a channel 
   ok = gen_tcp:send(Sock, "JOIN #channel1\r\n"),
-  MsgChan = <<":eircd MODE #channel1 +ns\r\n:eircd 353 user2 @ #channel1 :@user2\r\n:eircd 366 user2 #channel1 :End of /NAMES list.\r\n">>,
-  {ok, MsgChan} = gen_tcp:recv(Sock, 0),
+  {ok, <<":eircd MODE #channel1 +ns\r\n">>} = gen_tcp:recv(Sock, 27),
+  {ok, <<":eircd 353 user2 @ #channel1 :@user2\r\n">>} = gen_tcp:recv(Sock, 38),
+  {ok, <<":eircd 366 user2 #channel1 :End of /NAMES list.\r\n">>} = gen_tcp:recv(Sock, 49),
 
   % part a channel
   ok = gen_tcp:send(Sock, "PART #channel1\r\n"),
-  MsgPart = <<":user2!a@b PART #channel1\r\n">>,
-  {ok, MsgPart} = gen_tcp:recv(Sock, 0),
+  {ok, <<":user2!a@b PART #channel1\r\n">>} = gen_tcp:recv(Sock, 0),
 
   % PING
   ok = gen_tcp:send(Sock, "PING\r\n"),
-  MsgPing = <<"PONG\r\n">>,
-  {ok, MsgPing} = gen_tcp:recv(Sock, 0),
+  {ok, <<"PONG\r\n">>} = gen_tcp:recv(Sock, 0),
 
   ok = gen_tcp:close(Sock).
 
