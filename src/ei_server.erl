@@ -36,7 +36,7 @@ init([LSock]) ->
 
 handle_info({tcp, Socket, RawData}, State) ->
     ?LOG(io_lib:format("received data ~p on socket ~p~n", [RawData, Socket])),
-    {ok, State1} = ei_commands:handle(string:tokens(RawData, "\r\n"), Socket, State),
+    {ok, State1} = ei_commands:parse_and_handle(RawData, Socket, State),
     {noreply, State1};
 handle_info({tcp_closed, Port}, State) ->
 	?LOG(io_lib:format("socket on port ~p closed", [Port])),

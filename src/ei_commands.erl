@@ -1,9 +1,12 @@
 -module(ei_commands).
 
--export([user/3, nick/3, ping/3, join/3, privmsg/3, part/3, handle/3]).
+-export([user/3, nick/3, ping/3, join/3, privmsg/3, part/3, parse_and_handle/3]).
 
 -include_lib("ei_logging.hrl").
 -include_lib("ei_common.hrl").
+
+parse_and_handle(RawData, Socket, State) ->
+    handle(string:tokens(RawData, "\r\n"), Socket, State).
 
 handle([], _Socket, State) ->
     ?LOG("finished processing commands"),
