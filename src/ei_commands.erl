@@ -18,36 +18,16 @@ handle([Command|Commands], State) ->
     handle(Commands, State1).
 
 process_command(<<"NICK ", Nick/binary>>, State) ->
-    nick(binary_to_list(Nick), State);
+    ei_mod_nick:handle_event({user_nick_registration, {binary_to_list(Nick)}}, State);
 process_command(<<"USER ", Arguments/binary>>, State) ->
-    user(self(), string:tokens(binary_to_list(Arguments), " "), State);
+    [Username, Hostname, Servername|_Realname] = string:tokens(binary_to_list(Arguments), " "),
+    ei_mod_userinfo:handle_event({user_userinfo_registration, {self(), Username, Hostname, Servername, Username}}, State);
 process_command(<<"PING">>, State) ->
-    ping(self(), undefined, State);
+    ei_mod_ping:handle_event({user_ping, {self()}}, State);
 process_command(<<"JOIN ", Channel/binary>>, State) ->
-    join(self(), binary_to_list(Channel), State); 
+    ei_mod_join:handle_event({user_join, {self(), binary_to_list(Channel)}}, State);
 process_command(<<"PART ", Channel/binary>>, State) ->
-    part(self(), binary_to_list(Channel), State);
+    ei_mod_part:handle_event({user_part, {self(), binary_to_list(Channel)}}, State);
 process_command(Command, State) ->
     {ok, State}.
 
-user(Pid, Arguments, State) ->
-    [Username, Hostname, Servername|_Realname] = Arguments,
-
-    % TODO: replace second Username below with Realname
-    ei_mod_userinfo:handle_event({user_userinfo_registration, {Pid, Username, Hostname, Servername, Username}}, State).
-
-nick(Nick, State) ->
-    ei_mod_nick:handle_event({user_nick_registration, {Nick}}, State).
-
-ping(Pid, _, State) ->
-    ei_mod_ping:handle_event({user_ping, {Pid}}, State).
-
-join(Pid, Channel, State) ->
-    ei_mod_join:handle_event({user_join, {Pid, Channel}}, State).
-    
-part(Pid, Channel, State) ->
-    ei_mod_part:handle_event({user_part, {Pid, Channel}}, State).
-
-privmsg(Pid, Args, State) ->
-    [Channel|Msg] = Args,
-    ei_mod_privmsg:handle_event({user_privmsg, {Pid, Channel, Msg}}, State).
