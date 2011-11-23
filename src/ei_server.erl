@@ -36,11 +36,11 @@ init([LSock]) ->
 
 handle_info({tcp, Socket, RawData}, State) ->
     ?LOG(io_lib:format("received data ~p on socket ~p~n", [RawData, Socket])),
-    {ok, State1} = ei_commands:parse_and_handle(RawData, Socket, State),
+    {ok, State1} = ei_commands:parse_and_handle(binary:split(RawData, [<<"\r\n">>], [global]), State),
     {noreply, State1};
 handle_info({tcp_closed, Port}, State) ->
-	?LOG(io_lib:format("socket on port ~p closed", [Port])),
-	{noreply, State};
+    ?LOG(io_lib:format("socket on port ~p closed", [Port])),
+    {noreply, State};
 handle_info(timeout, #state{lsock = LSock} = _State) ->
     ?LOG(io_lib:format("waiting for connection on socket ~p", [LSock])),
     {ok, Sock} = gen_tcp:accept(LSock),
