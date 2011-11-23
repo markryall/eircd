@@ -30,9 +30,7 @@ test_registration(Config) ->
   %% user registration 
   ok = gen_tcp:send(Sock, "NICK user2\r\n"),
   ok = gen_tcp:send(Sock, "USER a b c d e\r\n"),
-
-  Msg001 = <<":eircd 001 user2 :Welcome to the eircd Internet Relay Chat Network user2\r\n">>,
-  {ok, Msg001} = gen_tcp:recv(Sock, 0),
+  {ok, <<":eircd 001 user2 :Welcome to the eircd Internet Relay Chat Network user2\r\n">>} = gen_tcp:recv(Sock, 0),
 
   %% join a channel 
   ok = gen_tcp:send(Sock, "JOIN #channel1\r\n"),
