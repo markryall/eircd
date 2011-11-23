@@ -36,8 +36,8 @@ init([LSock]) ->
 
 handle_info({tcp, Socket, RawData}, State) ->
     ?LOG(io_lib:format("received data ~p on socket ~p~n", [RawData, Socket])),
-    handle_commands(string:tokens(RawData, "\r\n"), Socket, State),
-    {noreply, State};
+    {ok, State1} = handle_commands(string:tokens(RawData, "\r\n"), Socket, State),
+    {noreply, State1};
 handle_info({tcp_closed, Port}, State) ->
 	?LOG(io_lib:format("socket on port ~p closed", [Port])),
 	{noreply, State};
@@ -52,12 +52,15 @@ handle_info({send, Msg}, #state{socket=Sock} = State) ->
     {noreply, State}.
 		   
 handle_commands([], _Socket, State) ->
-    ?LOG("finished processing commands");
+    ?LOG("finished processing commands"),
+    {ok, State};
 handle_commands([Command|Commands], Socket, State) ->
     ?LOG("processing command " ++ Command),
     case string:tokens(Command, " ") of
         [Token|Arguments] ->
+            ?LOG(io_lib:format("current state: ~p", [State])),
             {ok, State1} = apply(ei_commands, list_to_atom(string:to_lower(Token)), [self(), Arguments, State]),
+            ?LOG(io_lib:format("new state: ~p", [State1])),
             handle_commands(Commands, Socket, State1);
         _ -> 
             ?LOG(io_lib:format("ignored command ~p", [Command])),
