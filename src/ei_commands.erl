@@ -6,6 +6,7 @@
 -include_lib("ei_common.hrl").
 
 parse_and_handle(RawData, Socket, State) ->
+    ?LOG(io_lib:format("RAW: ~p", [RawData])),
     handle(string:tokens(RawData, "\r\n"), Socket, State).
 
 handle([], _Socket, State) ->
@@ -15,9 +16,7 @@ handle([Command|Commands], Socket, State) ->
     ?LOG("processing command " ++ Command),
     case string:tokens(Command, " ") of
         [Token|Arguments] ->
-            ?LOG(io_lib:format("current state: ~p", [State])),
             {ok, State1} = apply(ei_commands, list_to_atom(string:to_lower(Token)), [self(), Arguments, State]),
-            ?LOG(io_lib:format("new state: ~p", [State1])),
             handle(Commands, Socket, State1);
         _ -> 
             ?LOG(io_lib:format("ignored command ~p", [Command])),
