@@ -10,7 +10,7 @@ start(_Type, _StartArgs) ->
     {ok, LSock} = gen_tcp:listen(?PORT, [binary, {active, true}]),
     case ei_sup:start_link(LSock) of
 	{ok, Pid} ->
-	    ei_server_sup:start_child(),
+	    ei_client_sup:start_child(),
 	    {ok, Pid};
 	Other ->
 	    {error, Other}

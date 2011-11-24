@@ -1,4 +1,4 @@
--module(ei_server).
+-module(ei_client).
 
 -behaviour(gen_server).
 
@@ -18,14 +18,14 @@
 -include_lib("ei_logging.hrl").
 -include_lib("ei_common.hrl").
 
--define(SERVER, ?MODULE).
+-define(CLIENT, ?MODULE).
 
 start_link(LSock) ->
     ?LOG("start_link"),
     gen_server:start_link(?MODULE, [LSock], []).
 
 stop() ->
-    gen_server:cast(?SERVER, stop).
+    gen_server:cast(?CLIENT, stop).
 
 terminate(_Reason, State) ->
     {noreply, State}.
@@ -45,7 +45,7 @@ handle_info(timeout, #state{lsock = LSock} = _State) ->
     ?LOG(io_lib:format("waiting for connection on socket ~p", [LSock])),
     {ok, Sock} = gen_tcp:accept(LSock),
     ?LOG(io_lib:format("received new connection on socket ~p", [Sock])),
-    ei_server_sup:start_child(),
+    ei_client_sup:start_child(),
     {noreply, #state{lsock=LSock, socket=Sock}};
 handle_info({send, Msg}, #state{socket=Sock} = State) ->
     gen_tcp:send(Sock, Msg),

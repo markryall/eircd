@@ -5,9 +5,9 @@
    {vsn, "0.1.0"},
    {modules, [
 	      ei_app,
-	      ei_server,
+	      ei_client,
 	      ei_sup,
-	      ei_server_sup,
+	      ei_client_sup,
 	      ei_commands,
 	      ei_mod_nick,
 	      ei_mod_privmsg,

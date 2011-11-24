@@ -11,10 +11,10 @@ start_link(LSock) ->
     supervisor:start_link({local, ?SERVER}, ?MODULE, [LSock]).
 
 init([LSock]) ->
-    ServerSup = {ei_server_sup, {ei_server_sup, start_link, [LSock]},
-	      permanent, 2000, supervisor, [ei_server]},
+    ClientSup = {ei_client_sup, {ei_client_sup, start_link, [LSock]},
+	      permanent, 2000, supervisor, [ei_client]},
 
-    Children = [ServerSup],
+    Children = [ClientSup],
 
     RestartStrategy = {one_for_one, 4, 3600},
 
