@@ -13,6 +13,6 @@ start_child(Sock) ->
     supervisor:start_child(?MODULE, [Sock]).
 
 init(_Args) ->
-    {ok, {{simple_one_for_one, 1, 1000}, [child(ei_client, [])]}}.
+    {ok, {{simple_one_for_one, 5, 1}, [child(ei_client, [])]}}.
 
-child(Module, Args) -> {Module, {Module, start_link, Args}, permanent, 1000, worker, [Module]}.
+child(Module, Args) -> {Module, {Module, start_link, Args}, temporary, 1000, worker, [Module]}.
