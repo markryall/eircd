@@ -2,26 +2,17 @@
 
 -behaviour(supervisor).
 
--export([start_link/1,
-	 start_child/0
-	 ]).
-
+-export([start_link/0, start_child/1]).
 -export([init/1]).
 
--include_lib("ei_logging.hrl").
+start_link() ->
+    supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
--define(CLIENT, ?MODULE).
+start_child(Sock) ->
+    Name = integer_to_list(round(random:uniform()*100)),
+    supervisor:start_child(?MODULE, [Sock]).
 
-start_link(LSock) ->
-    supervisor:start_link({local, ?CLIENT}, ?MODULE, [LSock]).
+init(_Args) ->
+    {ok, {{simple_one_for_one, 1, 1000}, [child(ei_client, [])]}}.
 
-start_child() ->
-    supervisor:start_child(?CLIENT, []).
-
-init([LSock]) ->
-    ?LOG("init"),
-    ClientSpec = {ei_client, {ei_client, start_link, [LSock]},
-	       temporary, brutal_kill, worker, [ei_client]},
-    Children = [ClientSpec],
-    RestartStrategy = {simple_one_for_one, 0, 1},
-    {ok, {RestartStrategy, Children}}.
+child(Module, Args) -> {Module, {Module, start_link, Args}, permanent, 1000, worker, [Module]}.

@@ -6,8 +6,9 @@
    {modules, [
 	      ei_app,
 	      ei_client,
-	      ei_sup,
 	      ei_client_sup,
+	      ei_server_sup,
+              ei_server,
 	      ei_commands,
 	      ei_mod_nick,
 	      ei_mod_privmsg,
