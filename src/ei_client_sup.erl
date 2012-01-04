@@ -9,8 +9,8 @@ start_link() ->
     supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 start_child(Sock) ->
-    Name = integer_to_list(round(random:uniform()*100)),
-    supervisor:start_child(?MODULE, [Sock]).
+    Name = list_to_atom("ei_client_" ++ integer_to_list(round(random:uniform()*100))),
+    supervisor:start_child(?MODULE, [Name, Sock]).
 
 init(_Args) ->
     {ok, {{simple_one_for_one, 5, 1}, [child(ei_client, [])]}}.

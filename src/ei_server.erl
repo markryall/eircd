@@ -1,12 +1,12 @@
+%% look into changing into a gen_server
+
 -module(ei_server).
 
--export([start_link/1, stop/0]).
+-export([start_link/1]).
 
 start_link(Port) ->
     {ok, Sock} = gen_tcp:listen(Port, [binary, {active, true}]),
     {ok, spawn_link(fun() -> loop(Sock) end)}.
-
-stop() -> exit(whereis({local, ?MODULE}), shutdown).
 
 loop(SSock) ->
     {ok, CSock} = gen_tcp:accept(SSock),

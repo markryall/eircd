@@ -15,7 +15,7 @@
 	      ei_mod_ping,
 	      ei_mod_join,
 	      ei_mod_part,
-	      ei_mod_userinfo
+	      ei_mod_registration
 	     ]},
    {registered, [ei_sup]},
    {applications, [kernel, stdlib]},
