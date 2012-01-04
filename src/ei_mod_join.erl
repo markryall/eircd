@@ -7,9 +7,9 @@
 
 init(_Args) -> {ok, #state{}}. 
 
-handle_event({Pid, <<"JOIN ", Channel/binary>>}, State) ->
+handle_event({Pid, <<Channel/binary>>}, State) ->
     ?LOG(io_lib:format("processing join command with channel=~p", [Channel])),
-    Nick = "FAKE!",
+    Nick = binary_to_list(State#state.nick),
     ChannelList = binary_to_list(Channel),
 
     Pid ! {send, ":eircd MODE " ++ ChannelList ++ " +ns\r\n"},

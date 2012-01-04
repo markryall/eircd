@@ -8,7 +8,7 @@
 init(_Args) ->
     {ok, []}.
 
-handle_event({Pid, <<"NICK ", Nick/binary>>}, State) ->
+handle_event({_Pid, <<"NICK ", Nick/binary>>}, State) ->
     ?LOG(io_lib:format("processing nick registration event with nick: ~p", [Nick])),
     {ok, State#state{nick=Nick}};
 handle_event(_, State) ->

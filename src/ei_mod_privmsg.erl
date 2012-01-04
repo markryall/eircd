@@ -4,7 +4,7 @@
 	 handle_event/2
 	 ]).
 
-handle_event({user_privmsg, {Pid, Channel, Msg}}, State) ->
+handle_event({user_privmsg, {_Pid, _Channel, _Msg}}, State) ->
     io:format("~p: processing ~p event~n", [?MODULE, "user_privmsg"]),
     %Pids = lists:delete(Pid, ei_user:get_channel_pids(Channel)),
     %Nick = ei_user:get_nick(Pid),

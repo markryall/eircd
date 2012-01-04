@@ -28,6 +28,6 @@ process_command(<<"JOIN ", Channel/binary>>, State) ->
     ei_mod_join:handle_event({user_join, {self(), binary_to_list(Channel)}}, State);
 process_command(<<"PART ", Channel/binary>>, State) ->
     ei_mod_part:handle_event({user_part, {self(), binary_to_list(Channel)}}, State);
-process_command(Command, State) ->
+process_command(_Command, State) ->
     {ok, State}.
 

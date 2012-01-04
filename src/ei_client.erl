@@ -16,7 +16,7 @@ start_link(Name, Sock) ->
 
 terminate(_Reason, State) -> {noreply, State}.
 
-init([Name, Sock]) -> {ok, #state{socket = Sock}}.
+init([_Name, Sock]) -> {ok, #state{socket = Sock}}.
 
 handle_info({tcp, _Socket, RawData}, State) ->
     ?LOG(io_lib:format("got message: ~p", [RawData])),
@@ -39,20 +39,31 @@ code_change(_OldVsn, State, _Extra) -> {ok, State}.
 
 %% api
 
-handle(Pid, []) ->
+handle(_Pid, []) ->
     ?LOG("finished processing commands");
 handle(Pid, [Command|Commands]) ->
     ?LOG(io_lib:format("processing command ~p", [Command])),
-    gen_event:notify(event_manager, {Pid, Command}),
+    gen_server:cast(self(), Command),
+    %gen_event:notify(event_manager, {Pid, Command}),
     handle(Pid, Commands).
 
-parse(Data) ->
-    gen_server:cast(self(), Data).
-
 handle_cast(stop, State) -> {stop, normal, State};
-handle_cast({send, Data}, #state{socket=Sock} = State) -> gen_tcp:send(Sock, Data);
-handle_cast(<<"JOIN ", Channel/binary>>, State) -> ei_mod_join:handle_event({user_join, {self(), binary_to_list(Channel)}}, State);
-handle_cast(<<"PART ", Channel/binary>>, State) -> ei_mod_part:handle_event({user_part, {self(), binary_to_list(Channel)}}, State);
+handle_cast({send, Data}, #state{socket=Sock} = State) ->
+    gen_tcp:send(Sock, Data),
+    {noreply, State};
+handle_cast(<<"NICK ", Nick/binary>>, State) ->
+    {ok, NewState} = ei_mod_registration:handle_event({nick, {self(), Nick}}, State),
+    {noreply, NewState};
+handle_cast(<<"USER ", Arguments/binary>>, State) ->
+    {ok, NewState} = ei_mod_registration:handle_event({user, {self(), Arguments}}, State),
+    {noreply, NewState};
+handle_cast(<<"JOIN ", Channel/binary>>, State) ->
+    {ok, NewState} = ei_mod_join:handle_event({self(), Channel}, State),
+    {noreply, NewState};
+handle_cast(<<"PART ", Channel/binary>>, State) ->
+    {ok, NewState} = ei_mod_part:handle_event({self(), Channel}, State),
+    {noreply, NewState};
 handle_cast(_Command, _State) ->
-    {ok, _State}.
+    ?LOG(io_lib:format("ignoring command ~p", [_Command])),
+    {noreply, _State}.
 
