@@ -25,28 +25,30 @@ end_per_testcase(TestCase, Config) ->
   Config.
 
 test_registration(Config) ->
-    Sock = connect(<<"user2">>),
+    Sock1 = connect(<<"user1">>),
+    Sock2 = connect(<<"user2">>),
 
     %% user registration 
 
   %% join a channel 
-  join(Sock, <<"#channel1">>),
-  {ok, <<":eircd 353 user2 @ #channel1 :@user2\r\n">>} = gen_tcp:recv(Sock, 38),
-  {ok, <<":eircd 366 user2 #channel1 :End of /NAMES list.\r\n">>} = gen_tcp:recv(Sock, 49),
+  join(Sock1, <<"#channel1">>),
+  {ok, <<":eircd 353 user1 @ #channel1 :@user1\r\n">>} = gen_tcp:recv(Sock1, 38),
+  {ok, <<":eircd 366 user1 #channel1 :End of /NAMES list.\r\n">>} = gen_tcp:recv(Sock1, 49),
 
   % part a channel
-  ok = gen_tcp:send(Sock, <<"PART #channel1\r\n">>),
-  {ok, <<":user2!a@b PART #channel1\r\n">>} = gen_tcp:recv(Sock, 0),
+  ok = gen_tcp:send(Sock1, <<"PART #channel1\r\n">>),
+  {ok, <<":user1!a@b PART #channel1\r\n">>} = gen_tcp:recv(Sock1, 0),
 
   % PING
 %%  ok = gen_tcp:send(Sock, <<"PING\r\n">>),
 %%  {ok, <<"PONG\r\n">>} = gen_tcp:recv(Sock, 0),
 
-  ok = gen_tcp:close(Sock).
+  ok = gen_tcp:close(Sock1).
 
 join(Sock, Channel) ->
   ok = gen_tcp:send(Sock, <<<<"JOIN ">>/binary, Channel/binary, <<"\r\n">>/binary>>),
-  {ok, <<":eircd MODE #channel1 +ns\r\n">>} = gen_tcp:recv(Sock, 27).
+    Pattern = <<<<":eircd MODE ">>/binary, Channel/binary, <<" +ns\r\n">>/binary>>,
+  {ok, Pattern} = gen_tcp:recv(Sock, 27).
 
 connect(Nick) ->
     {ok, Sock} = gen_tcp:connect(?HOST, ?PORT, ?TCP_OPTIONS),
@@ -54,7 +56,7 @@ connect(Nick) ->
     NewLine = <<"\r\n">>,
     ok = gen_tcp:send(Sock, <<<<"NICK ">>/binary, Nick/binary, NewLine/binary>>),
     ok = gen_tcp:send(Sock, <<"USER a b c d e\r\n">>),
-    Pattern = <<<<":eircd 001 ">>/binary, Nick/binary, <<" :Welcome to the eircd Internet Relay Chat Network user2\r\n">>/binary>>,
+    Pattern = <<<<":eircd 001 ">>/binary, Nick/binary, <<" :Welcome to the eircd Internet Relay Chat Network ">>/binary, Nick/binary, <<"\r\n">>/binary>>,
     {ok, Pattern} = gen_tcp:recv(Sock, 0),
 
     Sock.
