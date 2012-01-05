@@ -25,12 +25,9 @@ end_per_testcase(TestCase, Config) ->
   Config.
 
 test_registration(Config) ->
-  {ok, Sock} = gen_tcp:connect(?HOST, ?PORT, ?TCP_OPTIONS),
+    Sock = connect(<<"user2">>),
 
-  %% user registration 
-  ok = gen_tcp:send(Sock, <<"NICK user2\r\n">>),
-  ok = gen_tcp:send(Sock, <<"USER a b c d e\r\n">>),
-  {ok, <<":eircd 001 user2 :Welcome to the eircd Internet Relay Chat Network user2\r\n">>} = gen_tcp:recv(Sock, 0),
+    %% user registration 
 
   %% join a channel 
   ok = gen_tcp:send(Sock, <<"JOIN #channel1\r\n">>),
@@ -48,3 +45,13 @@ test_registration(Config) ->
 
   ok = gen_tcp:close(Sock).
 
+connect(Nick) ->
+    {ok, Sock} = gen_tcp:connect(?HOST, ?PORT, ?TCP_OPTIONS),
+
+    NewLine = <<"\r\n">>,
+    ok = gen_tcp:send(Sock, <<<<"NICK ">>/binary, Nick/binary, NewLine/binary>>),
+    ok = gen_tcp:send(Sock, <<"USER a b c d e\r\n">>),
+    Pattern = <<<<":eircd 001 ">>/binary, Nick/binary, <<" :Welcome to the eircd Internet Relay Chat Network user2\r\n">>/binary>>,
+    {ok, Pattern} = gen_tcp:recv(Sock, 0),
+
+    Sock.

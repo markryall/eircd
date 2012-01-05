@@ -14,3 +14,9 @@ loop(SSock) ->
     ok = gen_tcp:controlling_process(CSock, Pid),
     loop(SSock).
 
+join(Pid, Channel) ->
+    ok.
+
+part(Pid, Channel) ->
+    ok.
+
