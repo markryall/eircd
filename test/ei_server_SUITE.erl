@@ -35,7 +35,7 @@ test_registration(Config) ->
 
     join(Sock2, <<"#channel1">>),
     {ok, <<":eircd 353 user2 @ #channel1 :user1 user2\r\n">>} = gen_tcp:recv(Sock2, 43),
-    %{ok, <<":eircd 366 user2 #channel1 :End of /NAMES list.\r\n">>} = gen_tcp:recv(Sock1, 49),
+    {ok, <<":eircd 366 user2 #channel1 :End of /NAMES list.\r\n">>} = gen_tcp:recv(Sock2, 49),
 
     % part a channel
     %ok = gen_tcp:send(Sock1, <<"PART #channel1\r\n">>),
