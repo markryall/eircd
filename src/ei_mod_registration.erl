@@ -7,7 +7,8 @@
 
 init(_Args) -> {ok, #state{}}.
 
-handle_event({nick, {_Pid, <<Nick/binary>>}}, State) ->
+handle_event({nick, {Pid, <<Nick/binary>>}}, State) ->
+    ei_db:user_registration(Pid, binary_to_list(Nick)), 
     {ok, State#state{nick=Nick}};
 handle_event({user, {Pid, <<Arguments/binary>>}}, #state{nick = Nick} = State) ->
     [Username, Hostname, _Servername|_Realname] = string:tokens(binary_to_list(Arguments), " "),

@@ -12,8 +12,6 @@
 start_link(Name, Sock) ->
     gen_server:start_link({local, Name}, ?MODULE, [Name, Sock], []).
 
-%% ETS or DETS for dictionary
-
 terminate(_Reason, State) -> {noreply, State}.
 
 init([_Name, Sock]) -> {ok, #state{socket = Sock}}.

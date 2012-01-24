@@ -12,8 +12,10 @@ handle_event({Pid, <<Channel/binary>>}, State) ->
     Nick = binary_to_list(State#state.nick),
     ChannelList = binary_to_list(Channel),
 
+    {ok, Users} = ei_db:join(Channel, Pid),
+
     Pid ! {send, ":eircd MODE " ++ ChannelList ++ " +ns\r\n"},
-    Pid ! {send, ":eircd 353 " ++ Nick ++ " @ " ++ ChannelList ++ " :@" ++ Nick ++ "\r\n"},
+    Pid ! {send, ":eircd 353 " ++ Nick ++ " @ " ++ ChannelList ++ " :" ++ string:join(Users, " ") ++ "\r\n"},
     Pid ! {send, ":eircd 366 " ++ Nick ++ " " ++ ChannelList ++ " :End of /NAMES list.\r\n"},
 
     {ok, State#state{channels=lists:append(State#state.channels, ChannelList)}};

@@ -5,10 +5,11 @@
    {vsn, "0.1.0"},
    {modules, [
 	      ei_app,
-	      ei_client,
 	      ei_client_sup,
+	      ei_client,
 	      ei_server_sup,
               ei_server,
+              ei_db,
 	      ei_mod_nick,
 	      ei_mod_privmsg,
 	      ei_mod_ping,
