@@ -28,6 +28,12 @@ test_registration(Config) ->
     Sock1 = connect(<<"user1">>),
     Sock2 = connect(<<"user2">>),
 
+    % need a router concept
+    %% to advertise the fact someone has joined
+    %% to advertise the fact someone has parted
+    %% to send a privmsg to a channel
+    %% to send a privmsg to an individual
+
     %% join a channel 
     join(Sock1, <<"#channel1">>),
     {ok, <<":eircd 353 user1 @ #channel1 :user1\r\n">>} = gen_tcp:recv(Sock1, 37),
@@ -41,8 +47,11 @@ test_registration(Config) ->
     %ok = gen_tcp:send(Sock1, <<"PART #channel1\r\n">>),
     %{ok, <<":user1!a@b PART #channel1\r\n">>} = gen_tcp:recv(Sock1, 0),
 
-    ok = gen_tcp:close(Sock1).
-    %ok = gen_tcp:close(Sock2).
+    % privmsg a channel
+    % privmsg a user
+
+    ok = gen_tcp:close(Sock1),
+    ok = gen_tcp:close(Sock2).
 
 join(Sock, Channel) ->
   ok = gen_tcp:send(Sock, <<<<"JOIN ">>/binary, Channel/binary, <<"\r\n">>/binary>>),

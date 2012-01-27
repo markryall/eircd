@@ -4,7 +4,7 @@
 
 -export([start_link/0]).
 -export([terminate/2, init/1, handle_info/2, handle_cast/2, handle_call/3, code_change/3]).
--export([lookup/2, join/2, part/2, user_registration/2]).
+-export([lookup/2, join/2, part/2, user_registration/2, nick/2]).
 
 -record(state, {nick, channel}).
 
@@ -17,14 +17,14 @@ handle_info(_Msg, State) ->
     {noreply, State}.
 
 handle_call({join, Pid, Channel}, _From, #state{nick = NickTree, channel = ChannelTree} = State) ->
-    NewPids = [Pid] ++ channel_users(ChannelTree, Channel),
-    T = update_channel_users(ChannelTree, Channel, NewPids),
+    NewPids = [Pid] ++ users(ChannelTree, Channel),
+    T = update_tree(ChannelTree, Channel, NewPids),
     F = fun(X) -> lookup(NickTree, X) end,
     Nicks = lists:sort(lists:map(F, NewPids)),
     {reply, {ok, Nicks}, State#state{channel = T}};
-handle_call({part, Pid}, _From, State) ->
+handle_call({part, _Pid}, _From, State) ->
     {reply, {ok}, State};
-handle_call({nick, Pid}, _From, State) ->
+handle_call({nick, _Pid}, _From, State) ->
     {reply, {ok}, State};
 handle_call({user_registration, Pid, Nick}, _From, #state{nick = NickTree} = State) ->
     T = gb_trees:insert(Pid, Nick, NickTree),
@@ -44,13 +44,13 @@ terminate(_Reason, State) ->
 init([Nick, Channel]) ->
     {ok, #state{nick = Nick, channel = Channel}}.
 
-update_channel_users(Tree, Channel, Pids) ->
-    case gb_trees:is_defined(Channel, Tree) of
-        true -> gb_trees:update(Channel, Pids, Tree);
-        false -> gb_trees:insert(Channel, Pids, Tree)
+update_tree(Tree, Key, Value) ->
+    case gb_trees:is_defined(Key, Tree) of
+        true -> gb_trees:update(Key, Value, Tree);
+        false -> gb_trees:insert(Key, Value, Tree)
     end.
 
-channel_users(Tree, Channel) ->
+users(Tree, Channel) ->
     case gb_trees:lookup(Channel, Tree) of
         {value, P} -> P;
         none -> []
