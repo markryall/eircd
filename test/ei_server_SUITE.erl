@@ -7,6 +7,7 @@
 -define(HOST, "127.0.0.1").
 -define(PORT, 6667).
 -define(TCP_OPTIONS, [binary, {packet, 0}, {active, false}]).
+-define(TIMEOUT, 5000).
 
 all() -> [test_registration].
 
@@ -34,14 +35,21 @@ test_registration(Config) ->
     %% to send a privmsg to a channel
     %% to send a privmsg to an individual
 
+    %% no ident@host!
+
     %% join a channel 
     join(Sock1, <<"#channel1">>),
-    {ok, <<":eircd 353 user1 @ #channel1 :user1\r\n">>} = gen_tcp:recv(Sock1, 37),
-    {ok, <<":eircd 366 user1 #channel1 :End of /NAMES list.\r\n">>} = gen_tcp:recv(Sock1, 49),
+    {ok, <<":eircd 353 user1 @ #channel1 :user1\r\n">>} = gen_tcp:recv(Sock1, 37, ?TIMEOUT),
+    {ok, <<":eircd 366 user1 #channel1 :End of /NAMES list.\r\n">>} = gen_tcp:recv(Sock1, 49, ?TIMEOUT),
 
     join(Sock2, <<"#channel1">>),
-    {ok, <<":eircd 353 user2 @ #channel1 :user1 user2\r\n">>} = gen_tcp:recv(Sock2, 43),
-    {ok, <<":eircd 366 user2 #channel1 :End of /NAMES list.\r\n">>} = gen_tcp:recv(Sock2, 49),
+    {ok, <<":eircd 353 user2 @ #channel1 :user1 user2\r\n">>} = gen_tcp:recv(Sock2, 43, ?TIMEOUT),
+    {ok, <<":eircd 366 user2 #channel1 :End of /NAMES list.\r\n">>} = gen_tcp:recv(Sock2, 49, ?TIMEOUT),
+
+    %ct:print(default, "CRAP! ~p", [Crap]),
+
+    {ok, <<":user2 JOIN #channel1\r\n">>} = gen_tcp:recv(Sock1, 23, ?TIMEOUT),
+    %{ok, <<":user2 JOIN #channel1\r\n">>} = gen_tcp:recv(Sock2, 23, ?TIMEOUT),
 
     % part a channel
     %ok = gen_tcp:send(Sock1, <<"PART #channel1\r\n">>),
@@ -56,7 +64,7 @@ test_registration(Config) ->
 join(Sock, Channel) ->
   ok = gen_tcp:send(Sock, <<<<"JOIN ">>/binary, Channel/binary, <<"\r\n">>/binary>>),
     Pattern = <<<<":eircd MODE ">>/binary, Channel/binary, <<" +ns\r\n">>/binary>>,
-  {ok, Pattern} = gen_tcp:recv(Sock, 27).
+  {ok, Pattern} = gen_tcp:recv(Sock, 27, ?TIMEOUT).
 
 connect(Nick) ->
     {ok, Sock} = gen_tcp:connect(?HOST, ?PORT, ?TCP_OPTIONS),
@@ -65,6 +73,6 @@ connect(Nick) ->
     ok = gen_tcp:send(Sock, <<<<"NICK ">>/binary, Nick/binary, NewLine/binary>>),
     ok = gen_tcp:send(Sock, <<"USER a b c d e\r\n">>),
     Pattern = <<<<":eircd 001 ">>/binary, Nick/binary, <<" :Welcome to the eircd Internet Relay Chat Network ">>/binary, Nick/binary, <<"\r\n">>/binary>>,
-    {ok, Pattern} = gen_tcp:recv(Sock, 0),
+    {ok, Pattern} = gen_tcp:recv(Sock, 0, ?TIMEOUT),
 
     Sock.

@@ -9,6 +9,7 @@
 	      ei_client,
 	      ei_server_sup,
               ei_server,
+              ei_router,
               ei_db,
 	      ei_mod_nick,
 	      ei_mod_privmsg,

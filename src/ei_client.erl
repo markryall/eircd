@@ -21,16 +21,13 @@ handle_info({tcp, _Socket, RawData}, State) ->
     handle(self(), binary:split(RawData, [<<"\r\n">>], [global])),
     {noreply, State};
 handle_info({send, Msg}, #state{socket=Sock} = State) ->
+    ?LOG(io_lib:format("got message: {send, ~p}", [Msg])),
     gen_tcp:send(Sock, Msg),
     {noreply, State};
 handle_info(Msg, State) ->
     ?LOG(io_lib:format("got unknown message: ~p", [Msg])),
     {noreply, State}.
 		   
-%% send messages! make a function which will use handle_cast
-%handle_cast({send, Msg}, #state{socket=Sock} = State) ->
-%    gen_tcp:send(Sock, Msg),
-%    {noreply, State};
 handle_call(Msg, _From, State) -> {reply, {ok, Msg}, State}.
 
 code_change(_OldVsn, State, _Extra) -> {ok, State}.
@@ -42,13 +39,9 @@ handle(_Pid, []) ->
 handle(Pid, [Command|Commands]) ->
     ?LOG(io_lib:format("processing command ~p", [Command])),
     gen_server:cast(self(), Command),
-    %gen_event:notify(event_manager, {Pid, Command}),
     handle(Pid, Commands).
 
 handle_cast(stop, State) -> {stop, normal, State};
-handle_cast({send, Data}, #state{socket=Sock} = State) ->
-    gen_tcp:send(Sock, Data),
-    {noreply, State};
 handle_cast(<<"NICK ", Nick/binary>>, State) ->
     {ok, NewState} = ei_mod_registration:handle_event({nick, {self(), Nick}}, State),
     {noreply, NewState};

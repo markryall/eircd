@@ -14,6 +14,11 @@ handle_event({Pid, <<Channel/binary>>}, State) ->
 
     {ok, Users} = ei_db:join(Channel, Pid),
 
+    ei_router:broadcast(channel, Channel, ":" ++ Nick ++ " JOIN " ++ ChannelList ++ "\r\n", [Pid]),
+    %ei_router:broadcast(user, Nick, ":eircd MODE " ++ ChannelList ++ " +ns\r\n"),
+    %ei_router:broadcast(user, Nick, ":eircd 353 " ++ Nick ++ " @ " ++ ChannelList ++ " :" ++ string:join(Users, " ") ++ "\r\n"),
+    %ei_router:broadcast(user, Nick, ":eircd 366 " ++ Nick ++ " " ++ ChannelList ++ " :End of /NAMES list.\r\n"),
+
     Pid ! {send, ":eircd MODE " ++ ChannelList ++ " +ns\r\n"},
     Pid ! {send, ":eircd 353 " ++ Nick ++ " @ " ++ ChannelList ++ " :" ++ string:join(Users, " ") ++ "\r\n"},
     Pid ! {send, ":eircd 366 " ++ Nick ++ " " ++ ChannelList ++ " :End of /NAMES list.\r\n"},
